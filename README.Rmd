@@ -1,5 +1,7 @@
 ---
-output: github_document
+output:
+    github_document:
+        preserve_yaml: false
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -7,10 +9,12 @@ output: github_document
 ```{r setup, include = FALSE}
 library(knitr)
 library(kableExtra)
-knitr::opts_chunk$set(comment = "#>")
+knitr::opts_chunk$set(comment = "#>",
+                      collapse = TRUE,
+                      echo = TRUE)
 ```
 
-# "Tidy Project Achilles Data"
+# Tidy Project Achilles Data
 
 **author: Joshua H Cook**
 

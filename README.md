@@ -1,12 +1,14 @@
 ---
-output: github_document
+output:
+    github_document:
+        preserve_yaml: false
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 
 
-# "Tidy Project Achilles Data"
+# Tidy Project Achilles Data
 
 **author: Joshua H Cook**
 
@@ -58,9 +60,6 @@ The information for each cell line from the Broad's [Cancer Cell Line Encycloped
 ```r
 cell_line_metadata <- readRDS(file.path("data", "cell_line_metadata.tib"))
 head(cell_line_metadata)
-```
-
-```
 #> # A tibble: 6 x 9
 #>   DepMap_ID CCLE_Name Aliases COSMIC_ID Sanger_ID Primary_Disease
 #>   <chr>     <chr>     <chr>       <dbl>     <dbl> <chr>          
