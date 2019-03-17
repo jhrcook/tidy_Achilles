@@ -82,7 +82,7 @@ head(cell_line_metadata)
 #> #   Source <chr>
 ```
 
-<div style="border: 1px solid #ddd; padding: 5px; overflow-y: scroll; height:300px; overflow-x: scroll; width:100%; "><table>
+<div style="border: 1px solid #ddd; padding: 5px; overflow-y: scroll; height:300px; overflow-x: scroll; width:100%; "><table class="table table-striped table-hover table-condensed" style="margin-left: auto; margin-right: auto;">
  <thead>
   <tr>
    <th style="text-align:left;"> DepMap_ID </th>
@@ -151,61 +151,6 @@ head(cell_line_metadata)
    <td style="text-align:left;"> Acute Myelogenous Leukemia (AML), M6 (Erythroleukemia) </td>
    <td style="text-align:left;"> Male </td>
    <td style="text-align:left;"> ATCC </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> ACH-000006 </td>
-   <td style="text-align:left;"> MONOMAC6_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE </td>
-   <td style="text-align:left;"> MONO-MAC-6 </td>
-   <td style="text-align:right;"> 908148 </td>
-   <td style="text-align:right;"> 2167 </td>
-   <td style="text-align:left;"> Leukemia </td>
-   <td style="text-align:left;"> Acute Myelogenous Leukemia (AML), M5 (Monocytic) </td>
-   <td style="text-align:left;"> Male </td>
-   <td style="text-align:left;"> DSMZ </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> ACH-000007 </td>
-   <td style="text-align:left;"> LS513_LARGE_INTESTINE </td>
-   <td style="text-align:left;"> LS513 </td>
-   <td style="text-align:right;"> 907795 </td>
-   <td style="text-align:right;"> 569 </td>
-   <td style="text-align:left;"> Colon/Colorectal Cancer </td>
-   <td style="text-align:left;"> Colon Carcinoma </td>
-   <td style="text-align:left;"> Male </td>
-   <td style="text-align:left;"> ATCC </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> ACH-000009 </td>
-   <td style="text-align:left;"> C2BBE1_LARGE_INTESTINE </td>
-   <td style="text-align:left;"> C2BBe1 </td>
-   <td style="text-align:right;"> 910700 </td>
-   <td style="text-align:right;"> 2104 </td>
-   <td style="text-align:left;"> Colon/Colorectal Cancer </td>
-   <td style="text-align:left;"> Colon Adenocarcinoma </td>
-   <td style="text-align:left;"> Male </td>
-   <td style="text-align:left;"> ATCC </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> ACH-000010 </td>
-   <td style="text-align:left;"> NCIH2077_LUNG </td>
-   <td style="text-align:left;"> NCI-H2077;NCI-H1581 </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> Lung Cancer </td>
-   <td style="text-align:left;"> Non-Small Cell Lung Cancer (NSCLC), Adenocarcinoma </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> ACH-000011 </td>
-   <td style="text-align:left;"> 253J_URINARY_TRACT </td>
-   <td style="text-align:left;"> 253J </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> Bladder Cancer </td>
-   <td style="text-align:left;"> Carcinoma </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> KCLB </td>
   </tr>
 </tbody>
 </table></div>
