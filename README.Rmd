@@ -1,0 +1,86 @@
+---
+title: "Tidy Project Achilles Data"
+author: "Joshua H Cook"
+output: github_document
+---
+
+```{r setup, include = FALSE}
+library(knitr)
+library(kableExtra)
+knitr::opts_chunk$set(comment = "#>")
+```
+
+```{r load_libs}
+library(tidyverse)
+```
+
+**last updated: March 15, 2019**
+
+This is "tidy" data from the Broad's [Project Achilles](https://depmap.org/portal/achilles/) with a focus of the various *RAS* alleles. The data files are in the "data" directory and exaplined below.
+
+To download this repository,
+
+# TODO:
+
+## Raw Data
+
+### DepMap-2019q1-celllines_v2.csv
+
+Information on cell lines from the Broad's [Cancer Cell Line Encyclopedia (CCLE)](https://portals.broadinstitute.org/ccle). The tidy data is available in "cell_line_metadata.tib".
+
+### depmap_19Q1_mutation_calls.csv
+
+Mutation data on the cell lines from the Broad's [Cancer Cell Line Encyclopedia (CCLE)](https://portals.broadinstitute.org/ccle). The tidy data is available in "cell_line_mutations.tib".
+
+### D2_combined_gene_dep_scores.csv
+
+The "dependency scores" calculated by the Achilles Project. This file is organized by target name in the first column and the following columns are the scores for each cell line. The tidy data is available in "synthetic_lethal.tib".
+
+
+## Tidy Data Tables
+
+All processing was done in "data_preparation.R". The tidy data were stored as "tibbles" (`tbl_df`, instead of R's standard data.frame object) in RDS files. They can all be read directly into R.
+
+```{r example_readRDS, eval = FALSE}
+library(tibble)
+readRDS("data/example_data_table.tib")
+```
+
+More inforamtion in the "tidy data" format can be found in [*R for Data Science - Tidy data*](https://r4ds.had.co.nz/tidy-data.html). 
+
+### cell_line_metadata.tib
+
+The information for each cell line from the Broad's [Cancer Cell Line Encyclopedia (CCLE)](https://portals.broadinstitute.org/ccle).
+
+```{r show_celllinemeta}
+cell_line_metadata <- readRDS(file.path("data", "cell_line_metadata.tib"))
+head(cell_line_metadata)
+```
+
+```{r kable_celllinemeta}
+cell_line_metadata %>%
+	slice(1:100) %>%
+	kable() %>%
+	scroll_box(width = "100%", height = "300px")
+```
+
+1. **DepMap_ID** - ID for Dependancy Map project
+2. **CCLE_Name** - name from the [Cancer Cell Line Encyclopedia (CCLE)](https://portals.broadinstitute.org/ccle)
+3. **Aliases** - other names
+4. **COSMIC_ID** - [COSMIC](https://cancer.sanger.ac.uk/cosmic) ID
+5. **Sanger_ID** - Sanger ID
+6. **Primary_Disease** - general disease of the cell line
+7. **Subtype_Disease** - more specific disease of the cell line
+8. **Gender** - sex (if known) of the patient
+9. **Source** - source of the cell line
+
+### cell_line_ras_anno.tib
+
+### ras_muts_annotated.tib
+
+### synthetic_lethal.tib
+
+
+## Graphs
+
+### ras_dependency_graph.gr
