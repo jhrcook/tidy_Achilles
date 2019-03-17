@@ -1,7 +1,5 @@
 ---
-output:
-    github_document:
-        preserve_yaml: false
+output: github_document
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -10,7 +8,7 @@ output:
 
 # Tidy Project Achilles Data
 
-**author: Joshua H Cook**
+**author: Joshua H. Cook**
 
 **last updated: March 15, 2019**
 
@@ -21,9 +19,19 @@ This is "tidy" data from the Broad's [Project Achilles](https://depmap.org/porta
 library(tidyverse)
 ```
 
-To download this repository,
+To download this repository, run the following command on the command line.
 
-# TODO:
+```bash
+git clone https://github.com/jhrcook/tidy_Achilles.git
+```
+
+Download the data from the Dropbox folder using the following command.
+
+```bash
+#> # TODO: need to figure this part out
+```
+
+---
 
 ## Raw Data
 
@@ -39,6 +47,7 @@ Mutation data on the cell lines from the Broad's [Cancer Cell Line Encyclopedia 
 
 The "dependency scores" calculated by the Achilles Project. This file is organized by target name in the first column and the following columns are the scores for each cell line. The tidy data is available in "synthetic_lethal.tib".
 
+---
 
 ## Tidy Data Tables
 
@@ -217,8 +226,12 @@ head(cell_line_metadata)
 
 ### ras_muts_annotated.tib
 
+
+
 ### synthetic_lethal.tib
 
+
+---
 
 ## Graphs
 
