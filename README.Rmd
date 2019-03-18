@@ -131,10 +131,10 @@ cell_line_ras_anno <- readRDS(file.path("data", "cell_line_ras_anno.tib"))
 cell_line_ras_anno
 ```
 
-1. **DepMap_ID** through 9. **Source** - same as for "cell_line_metadata.tib"
-10. **ras** - *RAS* isoform; `"WT"` means all are wild-type
-11. **allele** - mutant *RAS* allele; `"WT"` means all *RAS* isoforms are wild-type
-12. **ras_allele** - catenation of `ras` and  `allele` columns
+1. **DepMap_ID** through **Source** - same as for "cell_line_metadata.tib"
+2. **ras** - *RAS* isoform; `"WT"` means all are wild-type
+3. **allele** - mutant *RAS* allele; `"WT"` means all *RAS* isoforms are wild-type
+4. **ras_allele** - catenation of `ras` and  `allele` columns
 
 ### ras_muts_annotated.tib
 
@@ -158,6 +158,9 @@ ras_muts_annotated
 11. **Gender** - sex (if known) of the patient
 12. **Source** - source of the cell line
 
+Here is a chart to breakdown the number of cell lines for each *RAS* alleles across the tissues.
+
+![ras_cell_lines](images/ras_alleles_per_tissue.png)
 
 ### synthetic_lethal
 
@@ -191,9 +194,9 @@ synthetic_lethal <- load_all_synthetic_lethal()
 synthetic_lethal
 ```
 
-1. **gene** - 
-2. **cell_line** - 
-3. **score** -
+1. **gene** - gene target
+2. **cell_line** - cell line
+3. **score** - dependency score (calculated by the Achilles project)
 4. **DepMap_ID** - cell line ID for DepMap
 5. **Aliases** - other names
 6. **COSMIC_ID** - [COSMIC](https://cancer.sanger.ac.uk/cosmic) ID
@@ -237,6 +240,14 @@ Edge attributes:
 7. **codon** - which codon the allele is from (is a character, not numeric)
 8. **Primary_Disease** - general disease of the cell line
 9. **Subtype_Disease** - more specific disease of the cell line
+
+Here is an example of the colorectal cancer cell lines with *KRAS* mutations in the hotspot codons, only showing edges for scores greater than 1 (red) or less than -1 (blue).
+
+![dependency_map](images/dependency_graph_nicely.png)
+
+Below are the dependency values each *RAS* allele on the corresponding *RAS* gene.
+
+![ras_dependency](images/ras_dependence.png)
 
 ---
 

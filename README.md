@@ -224,7 +224,7 @@ cell_line_ras_anno
 #> #   Gender <chr>, Source <chr>, ras <chr>, allele <chr>, ras_allele <chr>
 ```
 
-1.  **DepMap\_ID** through 9. **Source** - same as for
+1.  **DepMap\_ID** through **Source** - same as for
     “cell\_line\_metadata.tib”
 2.  **ras** - *RAS* isoform; `"WT"` means all are wild-type
 3.  **allele** - mutant *RAS* allele; `"WT"` means all *RAS* isoforms
@@ -272,6 +272,11 @@ ras_muts_annotated
 10. **Subtype\_Disease** - more specific disease of the cell line
 11. **Gender** - sex (if known) of the patient
 12. **Source** - source of the cell line
+
+Here is a chart to breakdown the number of cell lines for each *RAS*
+alleles across the tissues.
+
+![ras\_cell\_lines](images/ras_alleles_per_tissue.png)
 
 ### synthetic\_lethal
 
@@ -342,9 +347,9 @@ synthetic_lethal
 #> #   Source <chr>, ras <chr>, allele <chr>, ras_allele <chr>, tissue <chr>
 ```
 
-1.  **gene** -
-2.  **cell\_line** -
-3.  **score** -
+1.  **gene** - gene target
+2.  **cell\_line** - cell line
+3.  **score** - dependency score (calculated by the Achilles project)
 4.  **DepMap\_ID** - cell line ID for DepMap
 5.  **Aliases** - other names
 6.  **COSMIC\_ID** - [COSMIC](https://cancer.sanger.ac.uk/cosmic) ID
@@ -415,6 +420,17 @@ Edge attributes:
     numeric)
 8.  **Primary\_Disease** - general disease of the cell line
 9.  **Subtype\_Disease** - more specific disease of the cell line
+
+Here is an example of the colorectal cancer cell lines with *KRAS*
+mutations in the hotspot codons, only showing edges for scores greater
+than 1 (red) or less than -1 (blue).
+
+![dependency\_map](images/dependency_graph_nicely.png)
+
+Below are the dependency values each *RAS* allele on the corresponding
+*RAS* gene.
+
+![ras\_dependency](images/ras_dependence.png)
 
 -----
 
