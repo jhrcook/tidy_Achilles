@@ -6,7 +6,6 @@ output: github_document
 
 ```{r setup, include = FALSE}
 library(knitr)
-library(kableExtra)
 knitr::opts_chunk$set(comment = "#>",
                       collapse = TRUE,
                       echo = TRUE)
@@ -20,7 +19,7 @@ knitr::opts_chunk$set(comment = "#>",
 
 This is "tidy" data from the Broad's [Project Achilles](https://depmap.org/portal/achilles/) with a focus of the various *RAS* alleles. The data files are in the "data" directory and exaplined below.
 
-```{r load_libs, message = FALSE, warning = FALSE}
+```{r load_libs}
 library(tidyverse)
 ```
 
@@ -69,7 +68,7 @@ library(tibble)
 readRDS("data/example_data_table.tib")
 ```
 
-More inforamtion in the "tidy data" format can be found in [*R for Data Science - Tidy data*](https://r4ds.had.co.nz/tidy-data.html). 
+More information in the "tidy data" format can be found in [*R for Data Science - Tidy data*](https://r4ds.had.co.nz/tidy-data.html). 
 
 ### cell_line_metadata.tib
 
@@ -77,10 +76,10 @@ The information for each cell line from the Broad's [Cancer Cell Line Encycloped
 
 ```{r show_celllinemeta}
 cell_line_metadata <- readRDS(file.path("data", "cell_line_metadata.tib"))
-head(cell_line_metadata)
+cell_line_metadata
 ```
 
-1. **DepMap_ID** - ID for Dependancy Map project
+1. **DepMap_ID** - ID for Dependency Map project
 2. **CCLE_Name** - name from the [Cancer Cell Line Encyclopedia (CCLE)](https://portals.broadinstitute.org/ccle)
 3. **Aliases** - other names
 4. **COSMIC_ID** - [COSMIC](https://cancer.sanger.ac.uk/cosmic) ID
@@ -90,19 +89,52 @@ head(cell_line_metadata)
 8. **Gender** - sex (if known) of the patient
 9. **Source** - source of the cell line
 
+### cell_line_mutations.tib
+
+The mutation data for all cell lines in the Broad's [Cancer Cell Line Encyclopedia (CCLE)](https://portals.broadinstitute.org/ccle).
+
+```{r show_cellline_mutations.tib}
+cell_line_mutations <- readRDS(file.path("data", "cell_line_mutations.tib"))
+cell_line_mutations
+```
+
+1. **Hugo_Symbol** - gene name with the mutation
+2. **Entrez_Gene_Id** - Entrez ID
+3. **NCBI_Build** - reference genome used for mutation calling
+4. **Chromosome** - chromosome of the mutation
+5. **Start_position** - start position of the mutation
+6. **End_position** - end position of the mutation
+7. **Strand** - which strand the gene is on (transcribed from)
+8. **Variant_Classification** - the consequence of the mutation
+9. **Variant_Type** - shorthand consequence of the mutation (DEL, DNP, INS, ONP, SNP, or TN)
+10. **Reference_Allele** - nucleotide(s) in the reference
+11. **Tumor_Seq_Allele1** - nucleotide(s) in the sample
+12. **dbSNP_RS**, **dbSNP_Val_Status** - the ID association in the dbSNP (if available)
+13. **Genome_Change** - change to the genome
+14. **Annotation_Transcript** - transcript modified by the mutation
+15. **Tumor_Sample_Barcode** - name of the sample (cell line)
+16. **cDNA_Change** - change to the cDNA
+17. **Codon_Change** - the reference and mutated codon
+18. **Protein_Change** - amino acid change
+19. **isDeleterious**, **Variant_annotation**, **isTCGAhotspot**, **TCGAhsCnt**, **isCOSMIChotspot**, **COSMIChsCnt** - functional annotation
+
+20. **ExAC_AF**, **VA_WES_AC**, **CGA_WES_AC**, **SangerWES_AC**, **SangerRecalibWES_AC**, **RNAseq_AC**, **HC_AC**, **RD_AC**, **WGS_AC** -  various accession IDs
+21. **DepMap_ID** - cell line ID for DepMap
+
+
 ### cell_line_ras_anno.tib
 
-The cell line information with the status of the RAS isoforms. If they are all wild-type, then the `ras` and `allele` columns will both be `"WT"`. If a cell line has multiple RAS mutations, each one is a separate row.
+The cell line information with the status of the *RAS* isoforms. If they are all wild-type, then the `ras` and `allele` columns will both be `"WT"`. If a cell line has multiple RAS mutations, each one is a separate row.
 
 ```{r show_celllinerasanno}
 cell_line_ras_anno <- readRDS(file.path("data", "cell_line_ras_anno.tib"))
-head(cell_line_ras_anno)
+cell_line_ras_anno
 ```
 
 1. **DepMap_ID** through 9. **Source** - same as for "cell_line_metadata.tib"
 10. **ras** - *RAS* isoform; `"WT"` means all are wild-type
 11. **allele** - mutant *RAS* allele; `"WT"` means all *RAS* isoforms are wild-type
-12. **ras_allele** - catentation of `ras` and  `allele` columns
+12. **ras_allele** - catenation of `ras` and  `allele` columns
 
 ### ras_muts_annotated.tib
 
@@ -110,8 +142,22 @@ The *RAS* mutant cell lines. This if the same data as in "cell_line_ras_anno.tib
 
 ```{r show_rasmutsannotated}
 ras_muts_annotated <- readRDS(file.path("data", "ras_muts_annotated.tib"))
-head(ras_muts_annotated)
+ras_muts_annotated
 ```
+
+1. **DepMap_ID** - cell line ID for DepMap
+2. **ras** - *RAS* isoform; `"WT"` means all are wild-type
+3. **allele** - mutant *RAS* allele; `"WT"` means all *RAS* isoforms are wild-type
+4. **ras_allele** - catenation of `ras` and  `allele` columns
+5. **CCLE_Name** - name from the [Cancer Cell Line Encyclopedia (CCLE)](https://portals.broadinstitute.org/ccle)
+6. **Aliases** - other names
+7. **COSMIC_ID** - [COSMIC](https://cancer.sanger.ac.uk/cosmic) ID
+8. **Sanger_ID** - Sanger ID
+9. **Primary_Disease** - general disease of the cell line
+10. **Subtype_Disease** - more specific disease of the cell line
+11. **Gender** - sex (if known) of the patient
+12. **Source** - source of the cell line
+
 
 ### synthetic_lethal
 
@@ -142,10 +188,56 @@ Or all tissues can be gathered by not passing anything.
 
 ```{r example_alltissues}
 synthetic_lethal <- load_all_synthetic_lethal()
+synthetic_lethal
 ```
+
+1. **gene** - 
+2. **cell_line** - 
+3. **score** -
+4. **DepMap_ID** - cell line ID for DepMap
+5. **Aliases** - other names
+6. **COSMIC_ID** - [COSMIC](https://cancer.sanger.ac.uk/cosmic) ID
+7. **Sanger_ID** - Sanger ID
+8. **Primary_Disease** - general disease of the cell line
+9. **Subtype_Disease** - more specific disease of the cell line
+10. **Gender** - sex (if known) of the patient
+11. **Source** - source of the cell line
+12. **ras** - *RAS* isoform; `"WT"` means all are wild-type
+13. **allele** - mutant *RAS* allele; `"WT"` means all *RAS* isoforms are wild-type
+14. **ras_allele** - catenation of `ras` and  `allele` columns
+15. **tissue** - tissue of origin
 
 ---
 
 ## Graphs
 
 ### ras_dependency_graph.gr
+
+A graph was created for the dependency score in each *RAS*-mutant cell line. Each edge represents a score between a *RAS* allele and gene (including the *RAS* isoforms).
+
+```{r show_rasdependencygraph.gr}
+library(tidygraph)
+ras_dependency_graph <- readRDS(file.path("data", "ras_dependency_graph.gr"))
+ras_dependency_graph
+```
+
+Node attributes:
+
+1. **name** - name of the node; either a `ras_allele` or gene name
+2. **gene_group** - either `"ras"` or `"target"`
+
+Edge attributes:
+
+1. **from**, **to** - source and destination of the edge (undirected graph)
+2. **cell_line** - cell line the score is from
+3. **tissue** - source tissue of the cell line
+4. **score** - dependency score
+5. **ras** - *RAS* isoform of the data point
+6. **allele** - *RAS* allele of the data point
+7. **codon** - which codon the allele is from (is a character, not numeric)
+8. **Primary_Disease** - general disease of the cell line
+9. **Subtype_Disease** - more specific disease of the cell line
+
+---
+
+If there are any mistake or places for explanation, please open an [issue](https://github.com/jhrcook/tidy_Achilles/issues) or create a pull request if you want to address it yourself.

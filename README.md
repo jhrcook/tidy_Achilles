@@ -73,7 +73,7 @@ library(tibble)
 readRDS("data/example_data_table.tib")
 ```
 
-More inforamtion in the “tidy data” format can be found in [*R for Data
+More information in the “tidy data” format can be found in [*R for Data
 Science - Tidy data*](https://r4ds.had.co.nz/tidy-data.html).
 
 ### cell\_line\_metadata.tib
@@ -84,21 +84,25 @@ Encyclopedia
 
 ``` r
 cell_line_metadata <- readRDS(file.path("data", "cell_line_metadata.tib"))
-head(cell_line_metadata)
-#> # A tibble: 6 x 9
-#>   DepMap_ID CCLE_Name Aliases COSMIC_ID Sanger_ID Primary_Disease
-#>   <chr>     <chr>     <chr>       <dbl>     <dbl> <chr>          
-#> 1 ACH-0000… NIHOVCAR… NIH:OV…    905933      2201 Ovarian Cancer 
-#> 2 ACH-0000… HL60_HAE… HL-60      905938        55 Leukemia       
-#> 3 ACH-0000… CACO2_LA… CACO2;…        NA        NA Colon/Colorect…
-#> 4 ACH-0000… HEL_HAEM… HEL        907053       783 Leukemia       
-#> 5 ACH-0000… HEL9217_… HEL 92…        NA        NA Leukemia       
-#> 6 ACH-0000… MONOMAC6… MONO-M…    908148      2167 Leukemia       
-#> # … with 3 more variables: Subtype_Disease <chr>, Gender <chr>,
-#> #   Source <chr>
+cell_line_metadata
+#> # A tibble: 1,676 x 9
+#>    DepMap_ID CCLE_Name Aliases COSMIC_ID Sanger_ID Primary_Disease
+#>    <chr>     <chr>     <chr>       <dbl>     <dbl> <chr>          
+#>  1 ACH-0000… NIHOVCAR… NIH:OV…    905933      2201 Ovarian Cancer 
+#>  2 ACH-0000… HL60_HAE… HL-60      905938        55 Leukemia       
+#>  3 ACH-0000… CACO2_LA… CACO2;…        NA        NA Colon/Colorect…
+#>  4 ACH-0000… HEL_HAEM… HEL        907053       783 Leukemia       
+#>  5 ACH-0000… HEL9217_… HEL 92…        NA        NA Leukemia       
+#>  6 ACH-0000… MONOMAC6… MONO-M…    908148      2167 Leukemia       
+#>  7 ACH-0000… LS513_LA… LS513      907795       569 Colon/Colorect…
+#>  8 ACH-0000… C2BBE1_L… C2BBe1     910700      2104 Colon/Colorect…
+#>  9 ACH-0000… NCIH2077… NCI-H2…        NA        NA Lung Cancer    
+#> 10 ACH-0000… 253J_URI… 253J           NA        NA Bladder Cancer 
+#> # … with 1,666 more rows, and 3 more variables: Subtype_Disease <chr>,
+#> #   Gender <chr>, Source <chr>
 ```
 
-1.  **DepMap\_ID** - ID for Dependancy Map project
+1.  **DepMap\_ID** - ID for Dependency Map project
 2.  **CCLE\_Name** - name from the [Cancer Cell Line Encyclopedia
     (CCLE)](https://portals.broadinstitute.org/ccle)
 3.  **Aliases** - other names
@@ -109,9 +113,92 @@ head(cell_line_metadata)
 8.  **Gender** - sex (if known) of the patient
 9.  **Source** - source of the cell line
 
+### cell\_line\_mutations.tib
+
+The mutation data for all cell lines in the Broad’s [Cancer Cell Line
+Encyclopedia
+(CCLE)](https://portals.broadinstitute.org/ccle).
+
+``` r
+cell_line_mutations <- readRDS(file.path("data", "cell_line_mutations.tib"))
+cell_line_mutations
+#> # A tibble: 1,243,145 x 35
+#>    Hugo_Symbol Entrez_Gene_Id NCBI_Build Chromosome Start_position
+#>    <chr>                <dbl>      <dbl> <chr>               <dbl>
+#>  1 VPS13D               55187         37 1                12359347
+#>  2 AADACL4             343066         37 1                12726308
+#>  3 IFNLR1              163702         37 1                24484172
+#>  4 TMEM57               55219         37 1                25785018
+#>  5 ZSCAN20               7579         37 1                33954141
+#>  6 POU3F1                5453         37 1                38512139
+#>  7 MAST2                23139         37 1                46498028
+#>  8 GBP4                115361         37 1                89657103
+#>  9 VAV3                 10451         37 1               108247170
+#> 10 NBPF20           100288142         37 1               148346689
+#> # … with 1,243,135 more rows, and 30 more variables: End_position <dbl>,
+#> #   Strand <chr>, Variant_Classification <chr>, Variant_Type <chr>,
+#> #   Reference_Allele <chr>, Tumor_Seq_Allele1 <chr>, dbSNP_RS <chr>,
+#> #   dbSNP_Val_Status <chr>, Genome_Change <chr>,
+#> #   Annotation_Transcript <chr>, Tumor_Sample_Barcode <chr>,
+#> #   cDNA_Change <chr>, Codon_Change <chr>, Protein_Change <chr>,
+#> #   isDeleterious <lgl>, isTCGAhotspot <lgl>, TCGAhsCnt <dbl>,
+#> #   isCOSMIChotspot <lgl>, COSMIChsCnt <dbl>, ExAC_AF <dbl>,
+#> #   VA_WES_AC <chr>, CGA_WES_AC <chr>, SangerWES_AC <chr>,
+#> #   SangerRecalibWES_AC <chr>, RNAseq_AC <chr>, HC_AC <chr>, RD_AC <chr>,
+#> #   WGS_AC <chr>, Variant_annotation <chr>, DepMap_ID <chr>
+```
+
+1.  **Hugo\_Symbol** - gene name with the mutation
+
+2.  **Entrez\_Gene\_Id** - Entrez ID
+
+3.  **NCBI\_Build** - reference genome used for mutation calling
+
+4.  **Chromosome** - chromosome of the mutation
+
+5.  **Start\_position** - start position of the mutation
+
+6.  **End\_position** - end position of the mutation
+
+7.  **Strand** - which strand the gene is on (transcribed from)
+
+8.  **Variant\_Classification** - the consequence of the mutation
+
+9.  **Variant\_Type** - shorthand consequence of the mutation (DEL, DNP,
+    INS, ONP, SNP, or TN)
+
+10. **Reference\_Allele** - nucleotide(s) in the reference
+
+11. **Tumor\_Seq\_Allele1** - nucleotide(s) in the sample
+
+12. **dbSNP\_RS**, **dbSNP\_Val\_Status** - the ID association in the
+    dbSNP (if available)
+
+13. **Genome\_Change** - change to the genome
+
+14. **Annotation\_Transcript** - transcript modified by the mutation
+
+15. **Tumor\_Sample\_Barcode** - name of the sample (cell line)
+
+16. **cDNA\_Change** - change to the cDNA
+
+17. **Codon\_Change** - the reference and mutated codon
+
+18. **Protein\_Change** - amino acid change
+
+19. **isDeleterious**, **Variant\_annotation**, **isTCGAhotspot**,
+    **TCGAhsCnt**, **isCOSMIChotspot**, **COSMIChsCnt** - functional
+    annotation
+
+20. **ExAC\_AF**, **VA\_WES\_AC**, **CGA\_WES\_AC**, **SangerWES\_AC**,
+    **SangerRecalibWES\_AC**, **RNAseq\_AC**, **HC\_AC**, **RD\_AC**,
+    **WGS\_AC** - various accession IDs
+
+21. **DepMap\_ID** - cell line ID for DepMap
+
 ### cell\_line\_ras\_anno.tib
 
-The cell line information with the status of the RAS isoforms. If they
+The cell line information with the status of the *RAS* isoforms. If they
 are all wild-type, then the `ras` and `allele` columns will both be
 `"WT"`. If a cell line has multiple RAS mutations, each one is a
 separate
@@ -119,18 +206,22 @@ row.
 
 ``` r
 cell_line_ras_anno <- readRDS(file.path("data", "cell_line_ras_anno.tib"))
-head(cell_line_ras_anno)
-#> # A tibble: 6 x 12
-#>   DepMap_ID CCLE_Name Aliases COSMIC_ID Sanger_ID Primary_Disease
-#>   <chr>     <chr>     <chr>       <dbl>     <dbl> <chr>          
-#> 1 ACH-0000… NIHOVCAR… NIH:OV…    905933      2201 Ovarian Cancer 
-#> 2 ACH-0000… HL60_HAE… HL-60      905938        55 Leukemia       
-#> 3 ACH-0000… CACO2_LA… CACO2;…        NA        NA Colon/Colorect…
-#> 4 ACH-0000… HEL_HAEM… HEL        907053       783 Leukemia       
-#> 5 ACH-0000… HEL9217_… HEL 92…        NA        NA Leukemia       
-#> 6 ACH-0000… MONOMAC6… MONO-M…    908148      2167 Leukemia       
-#> # … with 6 more variables: Subtype_Disease <chr>, Gender <chr>,
-#> #   Source <chr>, ras <chr>, allele <chr>, ras_allele <chr>
+cell_line_ras_anno
+#> # A tibble: 1,745 x 12
+#>    DepMap_ID CCLE_Name Aliases COSMIC_ID Sanger_ID Primary_Disease
+#>    <chr>     <chr>     <chr>       <dbl>     <dbl> <chr>          
+#>  1 ACH-0000… NIHOVCAR… NIH:OV…    905933      2201 Ovarian Cancer 
+#>  2 ACH-0000… HL60_HAE… HL-60      905938        55 Leukemia       
+#>  3 ACH-0000… CACO2_LA… CACO2;…        NA        NA Colon/Colorect…
+#>  4 ACH-0000… HEL_HAEM… HEL        907053       783 Leukemia       
+#>  5 ACH-0000… HEL9217_… HEL 92…        NA        NA Leukemia       
+#>  6 ACH-0000… MONOMAC6… MONO-M…    908148      2167 Leukemia       
+#>  7 ACH-0000… LS513_LA… LS513      907795       569 Colon/Colorect…
+#>  8 ACH-0000… C2BBE1_L… C2BBe1     910700      2104 Colon/Colorect…
+#>  9 ACH-0000… NCIH2077… NCI-H2…        NA        NA Lung Cancer    
+#> 10 ACH-0000… 253J_URI… 253J           NA        NA Bladder Cancer 
+#> # … with 1,735 more rows, and 6 more variables: Subtype_Disease <chr>,
+#> #   Gender <chr>, Source <chr>, ras <chr>, allele <chr>, ras_allele <chr>
 ```
 
 1.  **DepMap\_ID** through 9. **Source** - same as for
@@ -138,7 +229,7 @@ head(cell_line_ras_anno)
 2.  **ras** - *RAS* isoform; `"WT"` means all are wild-type
 3.  **allele** - mutant *RAS* allele; `"WT"` means all *RAS* isoforms
     are wild-type
-4.  **ras\_allele** - catentation of `ras` and `allele` columns
+4.  **ras\_allele** - catenation of `ras` and `allele` columns
 
 ### ras\_muts\_annotated.tib
 
@@ -149,19 +240,38 @@ data.
 
 ``` r
 ras_muts_annotated <- readRDS(file.path("data", "ras_muts_annotated.tib"))
-head(ras_muts_annotated)
-#> # A tibble: 6 x 12
-#>   DepMap_ID ras   allele ras_allele CCLE_Name Aliases COSMIC_ID Sanger_ID
-#>   <chr>     <chr> <chr>  <chr>      <chr>     <chr>       <dbl>     <dbl>
-#> 1 ACH-0000… NRAS  Q61L   NRAS_Q61L  HL60_HAE… HL-60      905938        55
-#> 2 ACH-0000… KRAS  G12D   KRAS_G12D  LS513_LA… LS513      907795       569
-#> 3 ACH-0000… HRAS  G12V   HRAS_G12V  T24_URIN… T24        724812      1455
-#> 4 ACH-0000… KRAS  G12V   KRAS_G12V  PATU8988… PA-TU-…        NA        NA
-#> 5 ACH-0000… KRAS  G12V   KRAS_G12V  PATU8988… PA-TU-…   1240201      1242
-#> 6 ACH-0000… NRAS  Q61K   NRAS_Q61K  CH157MN_… CH-157…        NA        NA
-#> # … with 4 more variables: Primary_Disease <chr>, Subtype_Disease <chr>,
-#> #   Gender <chr>, Source <chr>
+ras_muts_annotated
+#> # A tibble: 420 x 12
+#>    DepMap_ID ras   allele ras_allele CCLE_Name Aliases COSMIC_ID Sanger_ID
+#>    <chr>     <chr> <chr>  <chr>      <chr>     <chr>       <dbl>     <dbl>
+#>  1 ACH-0000… NRAS  Q61L   NRAS_Q61L  HL60_HAE… HL-60      905938        55
+#>  2 ACH-0000… KRAS  G12D   KRAS_G12D  LS513_LA… LS513      907795       569
+#>  3 ACH-0000… HRAS  G12V   HRAS_G12V  T24_URIN… T24        724812      1455
+#>  4 ACH-0000… KRAS  G12V   KRAS_G12V  PATU8988… PA-TU-…        NA        NA
+#>  5 ACH-0000… KRAS  G12V   KRAS_G12V  PATU8988… PA-TU-…   1240201      1242
+#>  6 ACH-0000… NRAS  Q61K   NRAS_Q61K  CH157MN_… CH-157…        NA        NA
+#>  7 ACH-0000… KRAS  Q61R   KRAS_Q61R  PANC0213… Panc 0…        NA        NA
+#>  8 ACH-0000… NRAS  Q61L   NRAS_Q61L  PLB985_H… PLB985…        NA        NA
+#>  9 ACH-0000… KRAS  G12D   KRAS_G12D  PANC0203… Panc 0…   1298475      1838
+#> 10 ACH-0000… NRAS  G13D   NRAS_G13D  NCIH929_… NCI-H9…    724825      1230
+#> # … with 410 more rows, and 4 more variables: Primary_Disease <chr>,
+#> #   Subtype_Disease <chr>, Gender <chr>, Source <chr>
 ```
+
+1.  **DepMap\_ID** - cell line ID for DepMap
+2.  **ras** - *RAS* isoform; `"WT"` means all are wild-type
+3.  **allele** - mutant *RAS* allele; `"WT"` means all *RAS* isoforms
+    are wild-type
+4.  **ras\_allele** - catenation of `ras` and `allele` columns
+5.  **CCLE\_Name** - name from the [Cancer Cell Line Encyclopedia
+    (CCLE)](https://portals.broadinstitute.org/ccle)
+6.  **Aliases** - other names
+7.  **COSMIC\_ID** - [COSMIC](https://cancer.sanger.ac.uk/cosmic) ID
+8.  **Sanger\_ID** - Sanger ID
+9.  **Primary\_Disease** - general disease of the cell line
+10. **Subtype\_Disease** - more specific disease of the cell line
+11. **Gender** - sex (if known) of the patient
+12. **Source** - source of the cell line
 
 ### synthetic\_lethal
 
@@ -213,10 +323,101 @@ Or all tissues can be gathered by not passing anything.
 
 ``` r
 synthetic_lethal <- load_all_synthetic_lethal()
+synthetic_lethal
+#> # A tibble: 12,808,660 x 15
+#>    gene  cell_line    score DepMap_ID Aliases COSMIC_ID Sanger_ID
+#>    <chr> <chr>        <dbl> <chr>     <chr>       <dbl>     <dbl>
+#>  1 A1BG  KELLY_AU…  NA      ACH-0002… KELLY      753618       225
+#>  2 NAT2  KELLY_AU…  NA      ACH-0002… KELLY      753618       225
+#>  3 ADA   KELLY_AU…  NA      ACH-0002… KELLY      753618       225
+#>  4 CDH2  KELLY_AU…   0.133  ACH-0002… KELLY      753618       225
+#>  5 AKT3  KELLY_AU…   0.142  ACH-0002… KELLY      753618       225
+#>  6 MED6  KELLY_AU…  -0.410  ACH-0002… KELLY      753618       225
+#>  7 NR2E3 KELLY_AU…  -0.0657 ACH-0002… KELLY      753618       225
+#>  8 NAAL… KELLY_AU…  NA      ACH-0002… KELLY      753618       225
+#>  9 DUXB  KELLY_AU…  NA      ACH-0002… KELLY      753618       225
+#> 10 PDZK… KELLY_AU…  NA      ACH-0002… KELLY      753618       225
+#> # … with 12,808,650 more rows, and 8 more variables:
+#> #   Primary_Disease <chr>, Subtype_Disease <chr>, Gender <chr>,
+#> #   Source <chr>, ras <chr>, allele <chr>, ras_allele <chr>, tissue <chr>
 ```
+
+1.  **gene** -
+2.  **cell\_line** -
+3.  **score** -
+4.  **DepMap\_ID** - cell line ID for DepMap
+5.  **Aliases** - other names
+6.  **COSMIC\_ID** - [COSMIC](https://cancer.sanger.ac.uk/cosmic) ID
+7.  **Sanger\_ID** - Sanger ID
+8.  **Primary\_Disease** - general disease of the cell line
+9.  **Subtype\_Disease** - more specific disease of the cell line
+10. **Gender** - sex (if known) of the patient
+11. **Source** - source of the cell line
+12. **ras** - *RAS* isoform; `"WT"` means all are wild-type
+13. **allele** - mutant *RAS* allele; `"WT"` means all *RAS* isoforms
+    are wild-type
+14. **ras\_allele** - catenation of `ras` and `allele` columns
+15. **tissue** - tissue of origin
 
 -----
 
 ## Graphs
 
 ### ras\_dependency\_graph.gr
+
+A graph was created for the dependency score in each *RAS*-mutant cell
+line. Each edge represents a score between a *RAS* allele and gene
+(including the *RAS* isoforms).
+
+``` r
+library(tidygraph)
+ras_dependency_graph <- readRDS(file.path("data", "ras_dependency_graph.gr"))
+ras_dependency_graph
+#> # A tbl_graph: 17325 nodes and 1938496 edges
+#> #
+#> # An undirected multigraph with 1 component
+#> #
+#> # Node Data: 17,325 x 2 (active)
+#>   name       gene_group
+#>   <chr>      <chr>     
+#> 1 KRAS_G12D  ras       
+#> 2 KRAS_A146T ras       
+#> 3 KRAS_G12C  ras       
+#> 4 KRAS_G12V  ras       
+#> 5 HRAS_Q61L  ras       
+#> 6 KRAS_Q61H  ras       
+#> # … with 1.732e+04 more rows
+#> #
+#> # Edge Data: 1,938,496 x 10
+#>    from    to cell_line tissue  score ras   allele codon Primary_Disease
+#>   <int> <int> <chr>     <chr>   <dbl> <chr> <chr>  <chr> <chr>          
+#> 1     1    17 A427_LUNG LUNG   0.0837 KRAS  G12D   12    Lung Cancer    
+#> 2     1    18 A427_LUNG LUNG   0.0458 KRAS  G12D   12    Lung Cancer    
+#> 3     1    19 A427_LUNG LUNG   0.101  KRAS  G12D   12    Lung Cancer    
+#> # … with 1.938e+06 more rows, and 1 more variable: Subtype_Disease <chr>
+```
+
+Node attributes:
+
+1.  **name** - name of the node; either a `ras_allele` or gene name
+2.  **gene\_group** - either `"ras"` or `"target"`
+
+Edge attributes:
+
+1.  **from**, **to** - source and destination of the edge (undirected
+    graph)
+2.  **cell\_line** - cell line the score is from
+3.  **tissue** - source tissue of the cell line
+4.  **score** - dependency score
+5.  **ras** - *RAS* isoform of the data point
+6.  **allele** - *RAS* allele of the data point
+7.  **codon** - which codon the allele is from (is a character, not
+    numeric)
+8.  **Primary\_Disease** - general disease of the cell line
+9.  **Subtype\_Disease** - more specific disease of the cell line
+
+-----
+
+If there are any mistake or places for explanation, please open an
+[issue](https://github.com/jhrcook/tidy_Achilles/issues) or create a
+pull request if you want to address it yourself.
