@@ -135,6 +135,7 @@ A specific selection of tissues can be loaded by passing a vector of the tissue 
 
 ```{r example_fewtissues}
 cervix_synlet <- load_all_synthetic_lethal(c("CERVIX", "BONE"))
+cervix_synlet
 ```
 
 Or all tissues can be gathered by not passing anything.

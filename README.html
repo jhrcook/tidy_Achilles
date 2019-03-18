@@ -703,7 +703,24 @@ body {
 <a class="sourceLine" id="cb9-10" data-line-number="10">    <span class="kw">return</span>(synlet)</a>
 <a class="sourceLine" id="cb9-11" data-line-number="11">}</a></code></pre></div>
 <p>A specific selection of tissues can be loaded by passing a vector of the tissue names (from the file names).</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">cervix_synlet &lt;-<span class="st"> </span><span class="kw">load_all_synthetic_lethal</span>(<span class="kw">c</span>(<span class="st">&quot;CERVIX&quot;</span>, <span class="st">&quot;BONE&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">cervix_synlet &lt;-<span class="st"> </span><span class="kw">load_all_synthetic_lethal</span>(<span class="kw">c</span>(<span class="st">&quot;CERVIX&quot;</span>, <span class="st">&quot;BONE&quot;</span>))</a>
+<a class="sourceLine" id="cb10-2" data-line-number="2">cervix_synlet</a>
+<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="co">#&gt; # A tibble: 328,871 x 15</span></a>
+<a class="sourceLine" id="cb10-4" data-line-number="4"><span class="co">#&gt;    gene  cell_line    score DepMap_ID Aliases COSMIC_ID Sanger_ID</span></a>
+<a class="sourceLine" id="cb10-5" data-line-number="5"><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt;        &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;       &lt;dbl&gt;     &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb10-6" data-line-number="6"><span class="co">#&gt;  1 A1BG  143B_BONE  0.146   ACH-0010… &lt;NA&gt;           NA        NA</span></a>
+<a class="sourceLine" id="cb10-7" data-line-number="7"><span class="co">#&gt;  2 NAT2  143B_BONE  0.103   ACH-0010… &lt;NA&gt;           NA        NA</span></a>
+<a class="sourceLine" id="cb10-8" data-line-number="8"><span class="co">#&gt;  3 ADA   143B_BONE  0.169   ACH-0010… &lt;NA&gt;           NA        NA</span></a>
+<a class="sourceLine" id="cb10-9" data-line-number="9"><span class="co">#&gt;  4 CDH2  143B_BONE  0.0630  ACH-0010… &lt;NA&gt;           NA        NA</span></a>
+<a class="sourceLine" id="cb10-10" data-line-number="10"><span class="co">#&gt;  5 AKT3  143B_BONE -0.00808 ACH-0010… &lt;NA&gt;           NA        NA</span></a>
+<a class="sourceLine" id="cb10-11" data-line-number="11"><span class="co">#&gt;  6 MED6  143B_BONE -0.214   ACH-0010… &lt;NA&gt;           NA        NA</span></a>
+<a class="sourceLine" id="cb10-12" data-line-number="12"><span class="co">#&gt;  7 NR2E3 143B_BONE -0.154   ACH-0010… &lt;NA&gt;           NA        NA</span></a>
+<a class="sourceLine" id="cb10-13" data-line-number="13"><span class="co">#&gt;  8 NAAL… 143B_BONE  0.134   ACH-0010… &lt;NA&gt;           NA        NA</span></a>
+<a class="sourceLine" id="cb10-14" data-line-number="14"><span class="co">#&gt;  9 DUXB  143B_BONE  0.139   ACH-0010… &lt;NA&gt;           NA        NA</span></a>
+<a class="sourceLine" id="cb10-15" data-line-number="15"><span class="co">#&gt; 10 PDZK… 143B_BONE  0.0303  ACH-0010… &lt;NA&gt;           NA        NA</span></a>
+<a class="sourceLine" id="cb10-16" data-line-number="16"><span class="co">#&gt; # … with 328,861 more rows, and 8 more variables: Primary_Disease &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb10-17" data-line-number="17"><span class="co">#&gt; #   Subtype_Disease &lt;chr&gt;, Gender &lt;chr&gt;, Source &lt;chr&gt;, ras &lt;chr&gt;,</span></a>
+<a class="sourceLine" id="cb10-18" data-line-number="18"><span class="co">#&gt; #   allele &lt;chr&gt;, ras_allele &lt;chr&gt;, tissue &lt;chr&gt;</span></a></code></pre></div>
 <p>Or all tissues can be gathered by not passing anything.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">synthetic_lethal &lt;-<span class="st"> </span><span class="kw">load_all_synthetic_lethal</span>()</a></code></pre></div>
 <hr />

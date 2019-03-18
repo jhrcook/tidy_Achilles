@@ -190,6 +190,23 @@ tissue names (from the file names).
 
 ``` r
 cervix_synlet <- load_all_synthetic_lethal(c("CERVIX", "BONE"))
+cervix_synlet
+#> # A tibble: 328,871 x 15
+#>    gene  cell_line    score DepMap_ID Aliases COSMIC_ID Sanger_ID
+#>    <chr> <chr>        <dbl> <chr>     <chr>       <dbl>     <dbl>
+#>  1 A1BG  143B_BONE  0.146   ACH-0010… <NA>           NA        NA
+#>  2 NAT2  143B_BONE  0.103   ACH-0010… <NA>           NA        NA
+#>  3 ADA   143B_BONE  0.169   ACH-0010… <NA>           NA        NA
+#>  4 CDH2  143B_BONE  0.0630  ACH-0010… <NA>           NA        NA
+#>  5 AKT3  143B_BONE -0.00808 ACH-0010… <NA>           NA        NA
+#>  6 MED6  143B_BONE -0.214   ACH-0010… <NA>           NA        NA
+#>  7 NR2E3 143B_BONE -0.154   ACH-0010… <NA>           NA        NA
+#>  8 NAAL… 143B_BONE  0.134   ACH-0010… <NA>           NA        NA
+#>  9 DUXB  143B_BONE  0.139   ACH-0010… <NA>           NA        NA
+#> 10 PDZK… 143B_BONE  0.0303  ACH-0010… <NA>           NA        NA
+#> # … with 328,861 more rows, and 8 more variables: Primary_Disease <chr>,
+#> #   Subtype_Disease <chr>, Gender <chr>, Source <chr>, ras <chr>,
+#> #   allele <chr>, ras_allele <chr>, tissue <chr>
 ```
 
 Or all tissues can be gathered by not passing anything.
