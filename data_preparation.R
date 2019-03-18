@@ -46,3 +46,18 @@ syn_lethal_tidy <- syn_lethal %>%
     select(gene, cell_line, tissue, score) %>%
     left_join(ccle_ras_muts, by = c("cell_line" = "CCLE_Name"))
 saveRDS(syn_lethal_tidy, file.path(data_dir, "synthetic_lethal.tib"))
+
+# save each tissue separately in a sub-directory of data
+save_syn_lethal <- function(tissue, data) {
+    cat("working on", tissue, "\n")
+    new_data <- data %>%
+        mutate(tissue = !!tissue)
+    save_name <- file.path(data_dir, "synthetic_lethal",
+                           paste0(tissue, "_syn_lethal.tib"))
+    saveRDS(new_data, save_name)
+}
+
+a <- syn_lethal_tidy %>%
+    group_by(tissue) %>%
+    nest() %>%
+    pmap(save_syn_lethal)
