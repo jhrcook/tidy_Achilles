@@ -1,4 +1,6 @@
-data/*
-data.gz.tar
+data/D2_combined_gene_dep_scores.csv
+data/depmap_19Q1_mutation_calls.csv
+data/synthetic_lethal.tib
+
 Rplots.pdf
 
