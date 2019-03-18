@@ -423,7 +423,8 @@ Edge attributes:
 
 Here is an example of the colorectal cancer cell lines with *KRAS*
 mutations in the hotspot codons, only showing edges for scores greater
-than 1 (red) or less than -1 (blue).
+than 1 (red) or less than -1 (blue). If there were multiple scores for a
+target-*RAS* allele, the median value was used.
 
 ![dependency\_map](images/dependency_graph_nicely.png)
 
