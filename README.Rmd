@@ -30,12 +30,6 @@ To download this repository, run the following command on the command line.
 git clone https://github.com/jhrcook/tidy_Achilles.git
 ```
 
-Download the data from the Dropbox folder using the following command.
-
-```bash
-#> # TODO: need to figure this part out
-```
-
 ---
 
 ## Raw Data
@@ -48,9 +42,21 @@ Information on cell lines from the Broad's [Cancer Cell Line Encyclopedia (CCLE)
 
 Mutation data on the cell lines from the Broad's [Cancer Cell Line Encyclopedia (CCLE)](https://portals.broadinstitute.org/ccle). The tidy data is available in "cell_line_mutations.tib".
 
+To access the file, decompress it with a GUI tools (usually double-click on Mac works) or use the command line.
+
+```bash
+gunzip depmap_19Q1_mutation_calls.csv.gz
+```
+
 ### D2_combined_gene_dep_scores.csv
 
 The "dependency scores" calculated by the Achilles Project. This file is organized by target name in the first column and the following columns are the scores for each cell line. The tidy data is available in "synthetic_lethal.tib".
+
+To access the file, decompress it with a GUI tools (usually double-click on Mac works) or use the command line.
+
+```bash
+gunzip D2_combined_gene_dep_scores.csv.gz
+```
 
 ---
 
@@ -86,14 +92,56 @@ head(cell_line_metadata)
 
 ### cell_line_ras_anno.tib
 
+The cell line information with the status of the RAS isoforms. If they are all wild-type, then the `ras` and `allele` columns will both be `"WT"`. If a cell line has multiple RAS mutations, each one is a separate row.
 
+```{r show_celllinerasanno}
+cell_line_ras_anno <- readRDS(file.path("data", "cell_line_ras_anno.tib"))
+head(cell_line_ras_anno)
+```
+
+1. **DepMap_ID** through 9. **Source** - same as for "cell_line_metadata.tib"
+10. **ras** - *RAS* isoform; `"WT"` means all are wild-type
+11. **allele** - mutant *RAS* allele; `"WT"` means all *RAS* isoforms are wild-type
+12. **ras_allele** - catentation of `ras` and  `allele` columns
 
 ### ras_muts_annotated.tib
 
+The *RAS* mutant cell lines. This if the same data as in "cell_line_ras_anno.tib", but only *RAS* mutants. The columns are in  a different order, but hold the same data.
 
+```{r show_rasmutsannotated}
+ras_muts_annotated <- readRDS(file.path("data", "ras_muts_annotated.tib"))
+head(ras_muts_annotated)
+```
 
-### synthetic_lethal.tib
+### synthetic_lethal
 
+I had to split up the synthetic lethal data by tissue so that each data file was small enough to push to GitHub. These are stored in "data/synthetic_lethal/". All or a selection of them can be loaded using `load_all_synthetic_lethal`. It returns a single tibble of the desired data.
+
+```{r load_snytheticlethal}
+load_all_synthetic_lethal <- function(tissues = "all") {
+    tissues <- paste0(tissues, collapse = "|")
+    synlet_path <- file.path("data", "synthetic_lethal")
+    synlet_files <- list.files(synlet_path, full.name = TRUE,
+                               pattern = "_syn_lethal.tib")
+    if (tissues != "all") {
+        synlet_files <-  stringr::str_subset(synlet_files, tissues)
+    }
+    synlet <- purrr::map(synlet_files, readRDS) %>% bind_rows()
+    return(synlet)
+}
+```
+
+A specific selection of tissues can be loaded by passing a vector of the tissue names (from the file names).
+
+```{r example_fewtissues}
+cervix_synlet <- load_all_synthetic_lethal(c("CERVIX", "BONE"))
+```
+
+Or all tissues can be gathered by not passing anything.
+
+```{r example_alltissues}
+synthetic_lethal <- load_all_synthetic_lethal()
+```
 
 ---
 
