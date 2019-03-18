@@ -48,9 +48,10 @@ gunzip depmap_19Q1_mutation_calls.csv.gz
 
 ### D2\_combined\_gene\_dep\_scores.csv
 
-The “dependency scores” calculated by the Achilles Project. This file is
-organized by target name in the first column and the following columns
-are the scores for each cell line. The tidy data is available in
+The “dependency scores” calculated by the [Achilles Project RNAi
+screen](https://depmap.org/portal/achilles/). This file is organized by
+target name in the first column and the following columns are the scores
+for each cell line. The tidy data is available in
 “synthetic\_lethal.tib”.
 
 To access the file, decompress it with a GUI tools (usually double-click
@@ -59,6 +60,15 @@ on Mac works) or use the command line.
 ``` bash
 gunzip D2_combined_gene_dep_scores.csv.gz
 ```
+
+### To be added
+
+  - [DepMap gene dependency scores](https://depmap.org/portal/download/)
+    (more recently updated) which uses the CRISPR screen results
+  - Genes marked as “essential” and “nonessential” by DepMap
+  - Any others? Open an
+    [issue](https://github.com/jhrcook/tidy_Achilles/issues) with for
+    any requested data to include.
 
 -----
 

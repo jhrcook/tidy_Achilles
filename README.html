@@ -618,9 +618,15 @@ body {
 <p>To access the file, decompress it with a GUI tools (usually double-click on Mac works) or use the command line.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="fu">gunzip</span> depmap_19Q1_mutation_calls.csv.gz</a></code></pre></div>
 <h3 id="d2_combined_gene_dep_scorescsv">D2_combined_gene_dep_scores.csv</h3>
-<p>The “dependency scores” calculated by the Achilles Project. This file is organized by target name in the first column and the following columns are the scores for each cell line. The tidy data is available in “synthetic_lethal.tib”.</p>
+<p>The “dependency scores” calculated by the <a href="https://depmap.org/portal/achilles/">Achilles Project RNAi screen</a>. This file is organized by target name in the first column and the following columns are the scores for each cell line. The tidy data is available in “synthetic_lethal.tib”.</p>
 <p>To access the file, decompress it with a GUI tools (usually double-click on Mac works) or use the command line.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="fu">gunzip</span> D2_combined_gene_dep_scores.csv.gz</a></code></pre></div>
+<h3 id="to-be-added">To be added</h3>
+<ul>
+<li><a href="https://depmap.org/portal/download/">DepMap gene dependency scores</a> (more recently updated) which uses the CRISPR screen results</li>
+<li>Genes marked as “essential” and “nonessential” by DepMap</li>
+<li>Any others? Open an <a href="https://github.com/jhrcook/tidy_Achilles/issues">issue</a> with for any requested data to include.</li>
+</ul>
 <hr />
 <h2 id="tidy-data-tables">Tidy Data Tables</h2>
 <p>All processing was done in “data_preparation.R”. The tidy data were stored as “tibbles” (<code>tbl_df</code>, instead of R’s standard data.frame object) in RDS files. They can all be read directly into R.</p>
