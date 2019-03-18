@@ -74,14 +74,6 @@ cell_line_metadata <- readRDS(file.path("data", "cell_line_metadata.tib"))
 head(cell_line_metadata)
 ```
 
-```{r kable_celllinemeta, echo = FALSE}
-cell_line_metadata %>%
-    slice(1:5) %>%
-    kable() %>%
-    kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
-    scroll_box(width = "100%", height = "300px")
-```
-
 1. **DepMap_ID** - ID for Dependancy Map project
 2. **CCLE_Name** - name from the [Cancer Cell Line Encyclopedia (CCLE)](https://portals.broadinstitute.org/ccle)
 3. **Aliases** - other names
