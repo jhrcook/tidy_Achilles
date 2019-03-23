@@ -23,6 +23,24 @@ line.
 git clone https://github.com/jhrcook/tidy_Achilles.git
 ```
 
+## Data Source
+
+All data was downloaded from the [Broad’s DepMap data
+repository](https://depmap.org/portal/download/all/).  
+<https://depmap.org/portal/download/all/>
+
+You can also query genes, cell lines, lineages, etc. from their
+[website](https://depmap.org/portal/)  
+<https://depmap.org/portal/>
+
+The cell line information was obtained from the [Cancer Cell Line
+Encyclopedia](https://portals.broadinstitute.org/ccle) - their query
+portal is really useful, too. More data on the cell lines can be
+downloaded from their website. If you have an requests for data to add
+to this repo, please open a GitHub
+[issue](https://github.com/jhrcook/tidy_Achilles/issues).  
+<https://portals.broadinstitute.org/ccle>
+
 -----
 
 ## Raw Data
@@ -39,11 +57,11 @@ Mutation data on the cell lines from the Broad’s [Cancer Cell Line
 Encyclopedia (CCLE)](https://portals.broadinstitute.org/ccle). The tidy
 data is available in “cell\_line\_mutations.tib”.
 
-To access the file, decompress it with a GUI tools (usually double-click
+To access the file, decompress it with a GUI tool (usually double-click
 on Mac works) or use the command line.
 
 ``` bash
-gunzip depmap_19Q1_mutation_calls.csv.gz
+gunzip data/depmap_19Q1_mutation_calls.csv.gz
 ```
 
 ### D2\_combined\_gene\_dep\_scores.csv
@@ -54,21 +72,46 @@ target name in the first column and the following columns are the scores
 for each cell line. The tidy data is available in
 “synthetic\_lethal.tib”.
 
-To access the file, decompress it with a GUI tools (usually double-click
+To access the file, decompress it with a GUI tool (usually double-click
 on Mac works) or use the command line.
 
 ``` bash
-gunzip D2_combined_gene_dep_scores.csv.gz
+gunzip data/D2_combined_gene_dep_scores.csv.gz
+```
+
+### nonessential\_genes.txt and essential\_genes.txt
+
+Just a list of genes the DepMap project has declared as essential or
+nonessential in all cell lines. The tidy data is available in
+“gene\_essentiality.tib”.
+
+### public\_19Q1\_gene\_cn.csv
+
+A cell line x gene matrix of copy number calls (they use GATK). The data
+was broken down by cell line - see below for how to easily load the
+desired data.
+
+### gene\_effect\_corrected.csv
+
+**TODO**
+
+``` bash
+gunzip data/gene_effect_corrected.csv.gz
+```
+
+### gene\_dependency\_corrected.csv
+
+**TODO**
+
+``` bash
+gunzip data/gene_dependency_corrected.csv.gz
 ```
 
 ### To be added
 
-  - [DepMap gene dependency scores](https://depmap.org/portal/download/)
-    (more recently updated) which uses the CRISPR screen results
-  - Genes marked as “essential” and “nonessential” by DepMap
-  - Any others? Open an
-    [issue](https://github.com/jhrcook/tidy_Achilles/issues) with for
-    any requested data to include.
+Any others? Open an
+[issue](https://github.com/jhrcook/tidy_Achilles/issues) for any
+requested data to include.
 
 -----
 
@@ -112,16 +155,16 @@ cell_line_metadata
 #> #   Gender <chr>, Source <chr>
 ```
 
-1.  **DepMap\_ID** - ID for Dependency Map project
-2.  **CCLE\_Name** - name from the [Cancer Cell Line Encyclopedia
-    (CCLE)](https://portals.broadinstitute.org/ccle)
-3.  **Aliases** - other names
-4.  **COSMIC\_ID** - [COSMIC](https://cancer.sanger.ac.uk/cosmic) ID
-5.  **Sanger\_ID** - Sanger ID
-6.  **Primary\_Disease** - general disease of the cell line
-7.  **Subtype\_Disease** - more specific disease of the cell line
-8.  **Gender** - sex (if known) of the patient
-9.  **Source** - source of the cell line
+**DepMap\_ID** - ID for Dependency Map project  
+**CCLE\_Name** - name from the [Cancer Cell Line Encyclopedia
+(CCLE)](https://portals.broadinstitute.org/ccle)  
+**Aliases** - other names  
+**COSMIC\_ID** - [COSMIC](https://cancer.sanger.ac.uk/cosmic) ID  
+**Sanger\_ID** - Sanger ID  
+**Primary\_Disease** - general disease of the cell line  
+**Subtype\_Disease** - more specific disease of the cell line  
+**Gender** - sex (if known) of the patient  
+**Source** - source of the cell line
 
 ### cell\_line\_mutations.tib
 
@@ -158,53 +201,29 @@ cell_line_mutations
 #> #   WGS_AC <chr>, Variant_annotation <chr>, DepMap_ID <chr>
 ```
 
-1.  **Hugo\_Symbol** - gene name with the mutation
-
-2.  **Entrez\_Gene\_Id** - Entrez ID
-
-3.  **NCBI\_Build** - reference genome used for mutation calling
-
-4.  **Chromosome** - chromosome of the mutation
-
-5.  **Start\_position** - start position of the mutation
-
-6.  **End\_position** - end position of the mutation
-
-7.  **Strand** - which strand the gene is on (transcribed from)
-
-8.  **Variant\_Classification** - the consequence of the mutation
-
-9.  **Variant\_Type** - shorthand consequence of the mutation (DEL, DNP,
-    INS, ONP, SNP, or TN)
-
-10. **Reference\_Allele** - nucleotide(s) in the reference
-
-11. **Tumor\_Seq\_Allele1** - nucleotide(s) in the sample
-
-12. **dbSNP\_RS**, **dbSNP\_Val\_Status** - the ID association in the
-    dbSNP (if available)
-
-13. **Genome\_Change** - change to the genome
-
-14. **Annotation\_Transcript** - transcript modified by the mutation
-
-15. **Tumor\_Sample\_Barcode** - name of the sample (cell line)
-
-16. **cDNA\_Change** - change to the cDNA
-
-17. **Codon\_Change** - the reference and mutated codon
-
-18. **Protein\_Change** - amino acid change
-
-19. **isDeleterious**, **Variant\_annotation**, **isTCGAhotspot**,
-    **TCGAhsCnt**, **isCOSMIChotspot**, **COSMIChsCnt** - functional
-    annotation
-
-20. **ExAC\_AF**, **VA\_WES\_AC**, **CGA\_WES\_AC**, **SangerWES\_AC**,
-    **SangerRecalibWES\_AC**, **RNAseq\_AC**, **HC\_AC**, **RD\_AC**,
-    **WGS\_AC** - various accession IDs
-
-21. **DepMap\_ID** - cell line ID for DepMap
+**Chromosome** - chromosome of the mutation  
+**Start\_position** - start position of the mutation  
+**End\_position** - end position of the mutation  
+**Strand** - which strand the gene is on (transcribed from)  
+**Variant\_Classification** - the consequence of the mutation  
+**Variant\_Type** - shorthand consequence of the mutation (DEL, DNP,
+INS, ONP, SNP, or TN)  
+**Reference\_Allele** - nucleotide(s) in the reference  
+**Tumor\_Seq\_Allele1** - nucleotide(s) in the sample  
+**dbSNP\_RS**, **dbSNP\_Val\_Status** - the ID association in the dbSNP
+(if available)  
+**Genome\_Change** - change to the genome  
+**Annotation\_Transcript** - transcript modified by the mutation  
+**Tumor\_Sample\_Barcode** - name of the sample (cell line)  
+**cDNA\_Change** - change to the cDNA  
+**Codon\_Change** - the reference and mutated codon  
+**Protein\_Change** - amino acid change  
+**isDeleterious**, **Variant\_annotation**, **isTCGAhotspot**,
+**TCGAhsCnt**, **isCOSMIChotspot**, **COSMIChsCnt** - functional
+annotation  
+**ExAC\_AF**, **VA\_WES\_AC**, **CGA\_WES\_AC**, **SangerWES\_AC**,
+**SangerRecalibWES\_AC**, **RNAseq\_AC**, **HC\_AC**, **RD\_AC**,
+**WGS\_AC** - various accession IDs
 
 ### cell\_line\_ras\_anno.tib
 
@@ -234,13 +253,6 @@ cell_line_ras_anno
 #> #   Gender <chr>, Source <chr>, ras <chr>, allele <chr>, ras_allele <chr>
 ```
 
-1.  **DepMap\_ID** through **Source** - same as for
-    “cell\_line\_metadata.tib”
-2.  **ras** - *RAS* isoform; `"WT"` means all are wild-type
-3.  **allele** - mutant *RAS* allele; `"WT"` means all *RAS* isoforms
-    are wild-type
-4.  **ras\_allele** - catenation of `ras` and `allele` columns
-
 ### ras\_muts\_annotated.tib
 
 The *RAS* mutant cell lines. This if the same data as in
@@ -268,36 +280,22 @@ ras_muts_annotated
 #> #   Subtype_Disease <chr>, Gender <chr>, Source <chr>
 ```
 
-1.  **DepMap\_ID** - cell line ID for DepMap
-2.  **ras** - *RAS* isoform; `"WT"` means all are wild-type
-3.  **allele** - mutant *RAS* allele; `"WT"` means all *RAS* isoforms
-    are wild-type
-4.  **ras\_allele** - catenation of `ras` and `allele` columns
-5.  **CCLE\_Name** - name from the [Cancer Cell Line Encyclopedia
-    (CCLE)](https://portals.broadinstitute.org/ccle)
-6.  **Aliases** - other names
-7.  **COSMIC\_ID** - [COSMIC](https://cancer.sanger.ac.uk/cosmic) ID
-8.  **Sanger\_ID** - Sanger ID
-9.  **Primary\_Disease** - general disease of the cell line
-10. **Subtype\_Disease** - more specific disease of the cell line
-11. **Gender** - sex (if known) of the patient
-12. **Source** - source of the cell line
-
 Here is a chart to breakdown the number of cell lines for each *RAS*
 alleles across the tissues.
 
 ![ras\_cell\_lines](images/ras_alleles_per_tissue.png)
 
-### synthetic\_lethal
+### synthetic\_lethal/
 
 I had to split up the synthetic lethal data by tissue so that each data
 file was small enough to push to GitHub. These are stored in
 “data/synthetic\_lethal/”. All or a selection of them can be loaded
-using `load_all_synthetic_lethal`. It returns a single tibble of the
-desired data.
+using `load\_synthetic\_lethal`. It returns a single tibble of the
+desired data. The only new column here is `score` which holds the
+lethality score that DepMap calculated.
 
 ``` r
-load_all_synthetic_lethal <- function(tissues = "all") {
+load_synthetic_lethal <- function(tissues = "all") {
     tissues <- paste0(tissues, collapse = "|")
     synlet_path <- file.path("data", "synthetic_lethal")
     synlet_files <- list.files(synlet_path, full.name = TRUE,
@@ -314,7 +312,7 @@ A specific selection of tissues can be loaded by passing a vector of the
 tissue names (from the file names).
 
 ``` r
-cervix_synlet <- load_all_synthetic_lethal(c("CERVIX", "BONE"))
+cervix_synlet <- load_synthetic_lethal(c("CERVIX", "BONE"))
 cervix_synlet
 #> # A tibble: 328,871 x 15
 #>    gene  cell_line    score DepMap_ID Aliases COSMIC_ID Sanger_ID
@@ -337,7 +335,7 @@ cervix_synlet
 Or all tissues can be gathered by not passing anything.
 
 ``` r
-synthetic_lethal <- load_all_synthetic_lethal()
+synthetic_lethal <- load_synthetic_lethal()
 synthetic_lethal
 #> # A tibble: 12,808,660 x 15
 #>    gene  cell_line    score DepMap_ID Aliases COSMIC_ID Sanger_ID
@@ -357,22 +355,71 @@ synthetic_lethal
 #> #   Source <chr>, ras <chr>, allele <chr>, ras_allele <chr>, tissue <chr>
 ```
 
-1.  **gene** - gene target
-2.  **cell\_line** - cell line
-3.  **score** - dependency score (calculated by the Achilles project)
-4.  **DepMap\_ID** - cell line ID for DepMap
-5.  **Aliases** - other names
-6.  **COSMIC\_ID** - [COSMIC](https://cancer.sanger.ac.uk/cosmic) ID
-7.  **Sanger\_ID** - Sanger ID
-8.  **Primary\_Disease** - general disease of the cell line
-9.  **Subtype\_Disease** - more specific disease of the cell line
-10. **Gender** - sex (if known) of the patient
-11. **Source** - source of the cell line
-12. **ras** - *RAS* isoform; `"WT"` means all are wild-type
-13. **allele** - mutant *RAS* allele; `"WT"` means all *RAS* isoforms
-    are wild-type
-14. **ras\_allele** - catenation of `ras` and `allele` columns
-15. **tissue** - tissue of origin
+### gene\_essentiality.tib
+
+A two column tibble of what the DepMap project deems essential or not
+essential in all cell lines.
+
+``` r
+readRDS(file.path("data", "gene_essentiality.tib"))
+#> # A tibble: 993 x 2
+#>    gene   is_essential
+#>    <chr>  <lgl>       
+#>  1 RPS11  TRUE        
+#>  2 RPS17  TRUE        
+#>  3 RPL4   TRUE        
+#>  4 EIF3D  TRUE        
+#>  5 RPL27  TRUE        
+#>  6 RPL10A TRUE        
+#>  7 RPS13  TRUE        
+#>  8 U2AF1  TRUE        
+#>  9 POLR2D TRUE        
+#> 10 RPS15A TRUE        
+#> # … with 983 more rows
+```
+
+### copy\_number/
+
+The full tibble was too large to push to GitHub (and probably to warrant
+loading every single time), so I separated it by cell line and stored
+each as a tibble in “data/copy\_number”. Again, I supply a function
+below to retrieve each one.
+
+``` r
+load_copy_number <- function(cell_line = "all") {
+    cell_line <- paste0(cell_line, collapse = "|")
+    copynum_path <- file.path("data", "copy_number")
+    copynum_files <- list.files(copynum_path, full.name = TRUE,
+                               pattern = "_syn_lethal.tib")
+    if (cell_line != "all") {
+        copynum_files <-  stringr::str_subset(copynum_files, cell_line)
+    }
+    copynum <- purrr::map(copynum_files, readRDS) %>% bind_rows()
+    return(copynum)
+}
+```
+
+Here is an example.
+
+``` r
+load_copy_number("ACH-000690")
+#> # A tibble: 23,299 x 3
+#>    gene       copy_number cell_line 
+#>    <chr>            <dbl> <chr>     
+#>  1 A1BG             0.19  ACH-000690
+#>  2 NAT2            -1.32  ACH-000690
+#>  3 ADA              0.295 ACH-000690
+#>  4 CDH2            -3.99  ACH-000690
+#>  5 AKT3             0.292 ACH-000690
+#>  6 GAGE12F         -0.246 ACH-000690
+#>  7 ZBTB11-AS1       0.112 ACH-000690
+#>  8 MED6             0.226 ACH-000690
+#>  9 NR2E3           -0.128 ACH-000690
+#> 10 NAALAD2          0.007 ACH-000690
+#> # … with 23,289 more rows
+```
+
+*I will add other cell line information in the future.*
 
 -----
 
@@ -411,25 +458,6 @@ ras_dependency_graph
 #> 3     1    19 A427_LUNG LUNG   0.101  KRAS  G12D   12    Lung Cancer    
 #> # … with 1.938e+06 more rows, and 1 more variable: Subtype_Disease <chr>
 ```
-
-Node attributes:
-
-1.  **name** - name of the node; either a `ras_allele` or gene name
-2.  **gene\_group** - either `"ras"` or `"target"`
-
-Edge attributes:
-
-1.  **from**, **to** - source and destination of the edge (undirected
-    graph)
-2.  **cell\_line** - cell line the score is from
-3.  **tissue** - source tissue of the cell line
-4.  **score** - dependency score
-5.  **ras** - *RAS* isoform of the data point
-6.  **allele** - *RAS* allele of the data point
-7.  **codon** - which codon the allele is from (is a character, not
-    numeric)
-8.  **Primary\_Disease** - general disease of the cell line
-9.  **Subtype\_Disease** - more specific disease of the cell line
 
 Here is an example of the colorectal cancer cell lines with *KRAS*
 mutations in the hotspot codons, only showing edges for scores greater
