@@ -12,10 +12,6 @@ Achilles](https://depmap.org/portal/achilles/) with a focus of the
 various *RAS* alleles. The data files are in the “data” directory and
 exaplined below.
 
-``` r
-library(tidyverse)
-```
-
 To download this repository, run the following command on the command
 line.
 
@@ -27,11 +23,11 @@ git clone https://github.com/jhrcook/tidy_Achilles.git
 
 All data was downloaded from the [Broad’s DepMap data
 repository](https://depmap.org/portal/download/all/).  
-<https://depmap.org/portal/download/all/>
+web address: <https://depmap.org/portal/download/all/>
 
 You can also query genes, cell lines, lineages, etc. from their
 [website](https://depmap.org/portal/)  
-<https://depmap.org/portal/>
+web address: <https://depmap.org/portal/>
 
 The cell line information was obtained from the [Cancer Cell Line
 Encyclopedia](https://portals.broadinstitute.org/ccle) - their query
@@ -39,7 +35,7 @@ portal is really useful, too. More data on the cell lines can be
 downloaded from their website. If you have an requests for data to add
 to this repo, please open a GitHub
 [issue](https://github.com/jhrcook/tidy_Achilles/issues).  
-<https://portals.broadinstitute.org/ccle>
+web address: <https://portals.broadinstitute.org/ccle>
 
 -----
 
@@ -66,11 +62,15 @@ gunzip data/depmap_19Q1_mutation_calls.csv.gz
 
 ### D2\_combined\_gene\_dep\_scores.csv
 
-The “dependency scores” calculated by the [Achilles Project RNAi
-screen](https://depmap.org/portal/achilles/). This file is organized by
-target name in the first column and the following columns are the scores
-for each cell line. The tidy data is available in
+The “dependency scores” calculated by the Broad’s [Achilles
+Project](https://depmap.org/portal/achilles/), Novartis’ project DRIVE,
+and the Marcotte *et al.* breast cell line dataset. This file is
+organized by target name in the first column and the following columns
+are the scores for each cell line. The tidy data is available in
 “synthetic\_lethal.tib”.
+
+These experiments use RNAi to knock-down the expression of the target
+genes.
 
 To access the file, decompress it with a GUI tool (usually double-click
 on Mac works) or use the command line.
@@ -93,7 +93,9 @@ desired data.
 
 ### gene\_effect\_corrected.csv
 
-**TODO**
+Thie is a cell line x gene matrix of CERES data normalized to positive
+controls. The “correction” was to remove batch effects. The tidy data is
+available in “gene\_effect.tib”.
 
 ``` bash
 gunzip data/gene_effect_corrected.csv.gz
@@ -101,7 +103,9 @@ gunzip data/gene_effect_corrected.csv.gz
 
 ### gene\_dependency\_corrected.csv
 
-**TODO**
+This is a cell line x gene matrix of the probability that knocking out
+the gene has a real depletion effect. The “correction” was to remove
+batch effects.
 
 ``` bash
 gunzip data/gene_dependency_corrected.csv.gz
@@ -116,6 +120,10 @@ requested data to include.
 -----
 
 ## Tidy Data Tables
+
+``` r
+library(tidyverse)
+```
 
 All processing was done in “data\_preparation.R”. The tidy data were
 stored as “tibbles” (`tbl_df`, instead of R’s standard data.frame
@@ -285,74 +293,108 @@ alleles across the tissues.
 
 ![ras\_cell\_lines](images/ras_alleles_per_tissue.png)
 
-### synthetic\_lethal/
+### rnai\_synthetic\_lethal/
 
-I had to split up the synthetic lethal data by tissue so that each data
-file was small enough to push to GitHub. These are stored in
-“data/synthetic\_lethal/”. All or a selection of them can be loaded
-using `load\_synthetic\_lethal`. It returns a single tibble of the
-desired data. The only new column here is `score` which holds the
+I had to split up the RNAi synthetic lethal data by tissue so that each
+data file was small enough to push to GitHub. These are stored in
+“data/rnai\_synthetic\_lethal/”. All or a selection of them can be
+loaded using `load_rnai_synthetic_lethal`, shown below. It returns a
+single tibble of the desired tissues’ data. The column `score` holds the
 lethality score that DepMap calculated.
 
 ``` r
-load_synthetic_lethal <- function(tissues = "all") {
+# general function for loadng tissue data from a directory
+load_tissue_data <- function(dir, tissues = "all") {
     tissues <- paste0(tissues, collapse = "|")
-    synlet_path <- file.path("data", "synthetic_lethal")
-    synlet_files <- list.files(synlet_path, full.name = TRUE,
-                               pattern = "_syn_lethal.tib")
+    tidy_path <- file.path("data", dir)
+    tidy_files <- list.files(tidy_path, full.name = TRUE)
     if (tissues != "all") {
-        synlet_files <-  stringr::str_subset(synlet_files, tissues)
+        tidy_files <-  stringr::str_subset(tidy_files, tissues)
     }
-    synlet <- purrr::map(synlet_files, readRDS) %>% bind_rows()
-    return(synlet)
+    tidy_tib <- purrr::map(tidy_files, readRDS) %>% bind_rows()
+    return(tidy_tib)
+}
+# specifically for RNAi synthetic lethality
+load_rnai_synthetic_lethal <- function(tissues) {
+    load_tissue_data(dir = "rnai_synthetic_lethal", tissues = tissues)
 }
 ```
 
 A specific selection of tissues can be loaded by passing a vector of the
-tissue names (from the file names).
+tissue names (from the file names). Alternatively, all tissues can be
+gathered by not passing anything.
 
 ``` r
-cervix_synlet <- load_synthetic_lethal(c("CERVIX", "BONE"))
-cervix_synlet
-#> # A tibble: 328,871 x 15
-#>    gene  cell_line    score DepMap_ID Aliases COSMIC_ID Sanger_ID
-#>    <chr> <chr>        <dbl> <chr>     <chr>       <dbl>     <dbl>
-#>  1 A1BG  143B_BONE  0.146   ACH-0010… <NA>           NA        NA
-#>  2 NAT2  143B_BONE  0.103   ACH-0010… <NA>           NA        NA
-#>  3 ADA   143B_BONE  0.169   ACH-0010… <NA>           NA        NA
-#>  4 CDH2  143B_BONE  0.0630  ACH-0010… <NA>           NA        NA
-#>  5 AKT3  143B_BONE -0.00808 ACH-0010… <NA>           NA        NA
-#>  6 MED6  143B_BONE -0.214   ACH-0010… <NA>           NA        NA
-#>  7 NR2E3 143B_BONE -0.154   ACH-0010… <NA>           NA        NA
-#>  8 NAAL… 143B_BONE  0.134   ACH-0010… <NA>           NA        NA
-#>  9 DUXB  143B_BONE  0.139   ACH-0010… <NA>           NA        NA
-#> 10 PDZK… 143B_BONE  0.0303  ACH-0010… <NA>           NA        NA
+load_rnai_synthetic_lethal(c("CERVIX", "BONE"))
+#> # A tibble: 328,871 x 16
+#>    gene  Entrez cell_line    score DepMap_ID Aliases COSMIC_ID Sanger_ID
+#>    <chr> <chr>  <chr>        <dbl> <chr>     <chr>       <dbl>     <dbl>
+#>  1 A1BG  1      143B_BONE  0.146   ACH-0010… <NA>           NA        NA
+#>  2 NAT2  10     143B_BONE  0.103   ACH-0010… <NA>           NA        NA
+#>  3 ADA   100    143B_BONE  0.169   ACH-0010… <NA>           NA        NA
+#>  4 CDH2  1000   143B_BONE  0.0630  ACH-0010… <NA>           NA        NA
+#>  5 AKT3  10000  143B_BONE -0.00808 ACH-0010… <NA>           NA        NA
+#>  6 MED6  10001  143B_BONE -0.214   ACH-0010… <NA>           NA        NA
+#>  7 NR2E3 10002  143B_BONE -0.154   ACH-0010… <NA>           NA        NA
+#>  8 NAAL… 10003  143B_BONE  0.134   ACH-0010… <NA>           NA        NA
+#>  9 DUXB  10003… 143B_BONE  0.139   ACH-0010… <NA>           NA        NA
+#> 10 PDZK… 10003… 143B_BONE  0.0303  ACH-0010… <NA>           NA        NA
 #> # … with 328,861 more rows, and 8 more variables: Primary_Disease <chr>,
 #> #   Subtype_Disease <chr>, Gender <chr>, Source <chr>, ras <chr>,
 #> #   allele <chr>, ras_allele <chr>, tissue <chr>
 ```
 
-Or all tissues can be gathered by not passing anything.
+### gene\_effect.tib
+
+This data is from the CRISPR-based screens. It is stored as a tibble of
+the CERES- and batch-adjusted essentiality scores for each gene targeted
+in each cell line. CERES adjusts the depletion score for the copy number
+of the gene
+\[[PMID: 29083409](https://www.nature.com/articles/ng.3984)\].
 
 ``` r
-synthetic_lethal <- load_synthetic_lethal()
-synthetic_lethal
-#> # A tibble: 12,808,660 x 15
-#>    gene  cell_line    score DepMap_ID Aliases COSMIC_ID Sanger_ID
-#>    <chr> <chr>        <dbl> <chr>     <chr>       <dbl>     <dbl>
-#>  1 A1BG  KELLY_AU…  NA      ACH-0002… KELLY      753618       225
-#>  2 NAT2  KELLY_AU…  NA      ACH-0002… KELLY      753618       225
-#>  3 ADA   KELLY_AU…  NA      ACH-0002… KELLY      753618       225
-#>  4 CDH2  KELLY_AU…   0.133  ACH-0002… KELLY      753618       225
-#>  5 AKT3  KELLY_AU…   0.142  ACH-0002… KELLY      753618       225
-#>  6 MED6  KELLY_AU…  -0.410  ACH-0002… KELLY      753618       225
-#>  7 NR2E3 KELLY_AU…  -0.0657 ACH-0002… KELLY      753618       225
-#>  8 NAAL… KELLY_AU…  NA      ACH-0002… KELLY      753618       225
-#>  9 DUXB  KELLY_AU…  NA      ACH-0002… KELLY      753618       225
-#> 10 PDZK… KELLY_AU…  NA      ACH-0002… KELLY      753618       225
-#> # … with 12,808,650 more rows, and 8 more variables:
+readRDS(file.path("data", "gene_effect.tib"))
+#> # A tibble: 9,839,772 x 12
+#>    DepMap_ID gene  CERES_score Entrez CCLE_Name Aliases COSMIC_ID Sanger_ID
+#>    <chr>     <chr>       <dbl> <chr>  <chr>     <chr>       <dbl>     <dbl>
+#>  1 ACH-0000… A1BG       0.135  1      HEL_HAEM… HEL        907053       783
+#>  2 ACH-0000… A1BG      -0.212  1      HEL9217_… HEL 92…        NA        NA
+#>  3 ACH-0000… A1BG       0.0433 1      LS513_LA… LS513      907795       569
+#>  4 ACH-0000… A1BG       0.0705 1      C2BBE1_L… C2BBe1     910700      2104
+#>  5 ACH-0000… A1BG       0.191  1      253J_URI… 253J           NA        NA
+#>  6 ACH-0000… A1BG      -0.0104 1      HCC827_L… HCC827    1240146       354
+#>  7 ACH-0000… A1BG       0.0210 1      ONCODG1_… ONCO-D…        NA        NA
+#>  8 ACH-0000… A1BG       0.113  1      HS294T_S… Hs 294…        NA        NA
+#>  9 ACH-0000… A1BG      -0.0742 1      NCIH1581… NCI-H1…    908471      1237
+#> 10 ACH-0000… A1BG       0.133  1      SKBR3_BR… SK-BR-3        NA        NA
+#> # … with 9,839,762 more rows, and 4 more variables: Primary_Disease <chr>,
+#> #   Subtype_Disease <chr>, Gender <chr>, Source <chr>
+```
+
+### gene\_dependency.tib
+
+This data is from the CRISPR-based screens. It is stored as a tibble
+with scores for the probability that knocking out the gene has a real
+depletion effect (corrected for batch effects).
+
+``` r
+readRDS(file.path("data", "gene_dependency.tib"))
+#> # A tibble: 9,839,772 x 12
+#>    DepMap_ID gene  dependency_score Entrez CCLE_Name Aliases COSMIC_ID
+#>    <chr>     <chr>            <dbl> <chr>  <chr>     <chr>       <dbl>
+#>  1 ACH-0000… A1BG           0.00247 1      HEL_HAEM… HEL        907053
+#>  2 ACH-0000… A1BG           0.107   1      HEL9217_… HEL 92…        NA
+#>  3 ACH-0000… A1BG           0.00800 1      LS513_LA… LS513      907795
+#>  4 ACH-0000… A1BG           0.00548 1      C2BBE1_L… C2BBe1     910700
+#>  5 ACH-0000… A1BG           0.00143 1      253J_URI… 253J           NA
+#>  6 ACH-0000… A1BG           0.0162  1      HCC827_L… HCC827    1240146
+#>  7 ACH-0000… A1BG           0.0134  1      ONCODG1_… ONCO-D…        NA
+#>  8 ACH-0000… A1BG           0.00277 1      HS294T_S… Hs 294…        NA
+#>  9 ACH-0000… A1BG           0.0424  1      NCIH1581… NCI-H1…    908471
+#> 10 ACH-0000… A1BG           0.00293 1      SKBR3_BR… SK-BR-3        NA
+#> # … with 9,839,762 more rows, and 5 more variables: Sanger_ID <dbl>,
 #> #   Primary_Disease <chr>, Subtype_Disease <chr>, Gender <chr>,
-#> #   Source <chr>, ras <chr>, allele <chr>, ras_allele <chr>, tissue <chr>
+#> #   Source <chr>
 ```
 
 ### gene\_essentiality.tib
@@ -381,45 +423,36 @@ readRDS(file.path("data", "gene_essentiality.tib"))
 ### copy\_number/
 
 The full tibble was too large to push to GitHub (and probably to warrant
-loading every single time), so I separated it by cell line and stored
+loading every time), so I separated it by primary disease and stored
 each as a tibble in “data/copy\_number”. Again, I supply a function
-below to retrieve each one.
+below to retrieve each one or all (default) tissues.
 
 ``` r
-load_copy_number <- function(cell_line = "all") {
-    cell_line <- paste0(cell_line, collapse = "|")
-    copynum_path <- file.path("data", "copy_number")
-    copynum_files <- list.files(copynum_path, full.name = TRUE,
-                               pattern = "_syn_lethal.tib")
-    if (cell_line != "all") {
-        copynum_files <-  stringr::str_subset(copynum_files, cell_line)
-    }
-    copynum <- purrr::map(copynum_files, readRDS) %>% bind_rows()
-    return(copynum)
+load_copy_number <- function(tissues = "all") {
+    load_tissue_data(dir = "copy_number", tissues = tissues)
 }
 ```
 
 Here is an example.
 
 ``` r
-load_copy_number("ACH-000690")
-#> # A tibble: 23,299 x 3
-#>    gene       copy_number cell_line 
-#>    <chr>            <dbl> <chr>     
-#>  1 A1BG             0.19  ACH-000690
-#>  2 NAT2            -1.32  ACH-000690
-#>  3 ADA              0.295 ACH-000690
-#>  4 CDH2            -3.99  ACH-000690
-#>  5 AKT3             0.292 ACH-000690
-#>  6 GAGE12F         -0.246 ACH-000690
-#>  7 ZBTB11-AS1       0.112 ACH-000690
-#>  8 MED6             0.226 ACH-000690
-#>  9 NR2E3           -0.128 ACH-000690
-#> 10 NAALAD2          0.007 ACH-000690
-#> # … with 23,289 more rows
+load_copy_number(c("CERVIX", "BONE"))
+#> # A tibble: 1,980,415 x 12
+#>    DepMap_ID gene  copy_number CCLE_Name Aliases COSMIC_ID Sanger_ID
+#>    <chr>     <chr>       <dbl> <chr>     <chr>       <dbl>     <dbl>
+#>  1 ACH-0000… A1BG      0.0616  SKNMC_BO… SK-N-MC        NA        NA
+#>  2 ACH-0004… A1BG      0.00266 SW1353_B… SW 1353        NA        NA
+#>  3 ACH-0000… A1BG     -0.198   A673_BONE A-673      684052       660
+#>  4 ACH-0002… A1BG     -0.0141  CADOES1_… CADO-E…    753539      1523
+#>  5 ACH-0010… A1BG     -0.0104  CBAGPN_B… <NA>           NA        NA
+#>  6 ACH-0010… A1BG      0.286   CHLA10_B… <NA>           NA        NA
+#>  7 ACH-0010… A1BG     -0.0433  CHLA218_… <NA>           NA        NA
+#>  8 ACH-0012… A1BG      0.0226  CHLA258_… <NA>           NA        NA
+#>  9 ACH-0010… A1BG     -0.0251  CHLA32_B… <NA>           NA        NA
+#> 10 ACH-0010… A1BG      0.510   CHLA57_B… <NA>           NA        NA
+#> # … with 1,980,405 more rows, and 5 more variables: Primary_Disease <chr>,
+#> #   Subtype_Disease <chr>, Gender <chr>, Source <chr>, tissue <chr>
 ```
-
-*I will add other cell line information in the future.*
 
 -----
 
@@ -433,36 +466,38 @@ line. Each edge represents a score between a *RAS* allele and gene
 
 ``` r
 library(tidygraph)
-ras_dependency_graph <- readRDS(file.path("data", "ras_dependency_graph.gr"))
-ras_dependency_graph
-#> # A tbl_graph: 17325 nodes and 1938496 edges
+readRDS(file.path("data", "ras_dependency_graph.gr"))
+#> # A tbl_graph: 17669 nodes and 3385728 edges
 #> #
-#> # An undirected multigraph with 1 component
+#> # A directed acyclic multigraph with 1 component
 #> #
-#> # Node Data: 17,325 x 2 (active)
+#> # Node Data: 17,669 x 2 (active)
 #>   name       gene_group
 #>   <chr>      <chr>     
 #> 1 KRAS_G12D  ras       
-#> 2 KRAS_A146T ras       
-#> 3 KRAS_G12C  ras       
-#> 4 KRAS_G12V  ras       
-#> 5 HRAS_Q61L  ras       
-#> 6 KRAS_Q61H  ras       
-#> # … with 1.732e+04 more rows
+#> 2 WT         ras       
+#> 3 KRAS_G12V  ras       
+#> 4 KRAS_Q61H  ras       
+#> 5 KRAS_G12R  ras       
+#> 6 KRAS_A146A ras       
+#> # … with 1.766e+04 more rows
 #> #
-#> # Edge Data: 1,938,496 x 10
-#>    from    to cell_line tissue  score ras   allele codon Primary_Disease
-#>   <int> <int> <chr>     <chr>   <dbl> <chr> <chr>  <chr> <chr>          
-#> 1     1    17 A427_LUNG LUNG   0.0837 KRAS  G12D   12    Lung Cancer    
-#> 2     1    18 A427_LUNG LUNG   0.0458 KRAS  G12D   12    Lung Cancer    
-#> 3     1    19 A427_LUNG LUNG   0.101  KRAS  G12D   12    Lung Cancer    
-#> # … with 1.938e+06 more rows, and 1 more variable: Subtype_Disease <chr>
+#> # Edge Data: 3,385,728 x 20
+#>    from    to DepMap_ID gene  CERES_score Entrez CCLE_Name Aliases
+#>   <int> <int> <chr>     <chr>       <dbl> <chr>  <chr>     <chr>  
+#> 1     1    36 ACH-0000… A1BG       0.0433 1      LS513_LA… LS513  
+#> 2     2    36 ACH-0000… A1BG       0.0705 1      C2BBE1_L… C2BBe1 
+#> 3     2    36 ACH-0000… A1BG      -0.0104 1      HCC827_L… HCC827 
+#> # … with 3.386e+06 more rows, and 12 more variables: COSMIC_ID <dbl>,
+#> #   Sanger_ID <dbl>, Primary_Disease <chr>, Subtype_Disease <chr>,
+#> #   Gender <chr>, Source <chr>, cancer <chr>, ras <chr>, allele <chr>,
+#> #   ras_allele <chr>, codon <chr>, num_celllines <int>
 ```
 
 Here is an example of the colorectal cancer cell lines with *KRAS*
-mutations in the hotspot codons, only showing edges for scores greater
-than 1 (red) or less than -1 (blue). If there were multiple scores for a
-target-*RAS* allele, the median value was used.
+mutations in the hotspot codons, only showing edges for scores less than
+-1. If there were multiple scores for a target-*RAS* allele, the median
+value was used. The color and edge width correlate with the CERES score.
 
 ![dependency\_map](images/dependency_graph_nicely.png)
 

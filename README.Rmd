@@ -19,10 +19,6 @@ knitr::opts_chunk$set(comment = "#>",
 
 This is "tidy" data from the Broad's [Project Achilles](https://depmap.org/portal/achilles/) with a focus of the various *RAS* alleles. The data files are in the "data" directory and exaplined below.
 
-```{r load_libs, message = FALSE, warching = FALSE}
-library(tidyverse)
-```
-
 To download this repository, run the following command on the command line.
 
 ```bash
@@ -32,13 +28,13 @@ git clone https://github.com/jhrcook/tidy_Achilles.git
 ## Data Source
 
 All data was downloaded from the [Broad's DepMap data repository](https://depmap.org/portal/download/all/).\
-https://depmap.org/portal/download/all/
+web address: https://depmap.org/portal/download/all/
 
 You can also query genes, cell lines, lineages, etc. from their [website](https://depmap.org/portal/)\
-https://depmap.org/portal/
+web address: https://depmap.org/portal/
 
 The cell line information was obtained from the [Cancer Cell Line Encyclopedia](https://portals.broadinstitute.org/ccle) - their query portal is really useful, too. More data on the cell lines can be downloaded from their website. If you have an requests for data to add to this repo, please open a GitHub [issue](https://github.com/jhrcook/tidy_Achilles/issues).\
-https://portals.broadinstitute.org/ccle
+web address: https://portals.broadinstitute.org/ccle
 
 ---
 
@@ -60,7 +56,9 @@ gunzip data/depmap_19Q1_mutation_calls.csv.gz
 
 ### D2\_combined\_gene\_dep\_scores.csv
 
-The "dependency scores" calculated by the [Achilles Project RNAi screen](https://depmap.org/portal/achilles/). This file is organized by target name in the first column and the following columns are the scores for each cell line. The tidy data is available in "synthetic_lethal.tib".
+The "dependency scores" calculated by the Broad's [Achilles Project](https://depmap.org/portal/achilles/), Novartis' project DRIVE, and the Marcotte *et al.* breast cell line dataset. This file is organized by target name in the first column and the following columns are the scores for each cell line. The tidy data is available in "synthetic_lethal.tib".
+
+These experiments use RNAi to knock-down the expression of the target genes.
 
 To access the file, decompress it with a GUI tool (usually double-click on Mac works) or use the command line.
 
@@ -78,7 +76,7 @@ A cell line x gene matrix of copy number calls (they use GATK). The data was bro
 
 ### gene\_effect\_corrected.csv
 
-**TODO**
+Thie is a cell line x gene matrix of CERES data normalized to positive controls. The "correction" was to remove batch effects. The tidy data is available in "gene\_effect.tib".
 
 ```bash
 gunzip data/gene_effect_corrected.csv.gz
@@ -86,7 +84,7 @@ gunzip data/gene_effect_corrected.csv.gz
 
 ### gene\_dependency\_corrected.csv
 
-**TODO**
+This is a cell line x gene matrix of the probability that knocking out the gene has a real depletion effect. The "correction" was to remove batch effects.
 
 ```bash
 gunzip data/gene_dependency_corrected.csv.gz
@@ -96,10 +94,13 @@ gunzip data/gene_dependency_corrected.csv.gz
 
 Any others? Open an [issue](https://github.com/jhrcook/tidy_Achilles/issues) for any requested data to include.
 
-
 ---
 
 ## Tidy Data Tables
+
+```{r load_libs, message = FALSE, warching = FALSE}
+library(tidyverse)
+```
 
 All processing was done in "data_preparation.R". The tidy data were stored as "tibbles" (`tbl_df`, instead of R's standard data.frame object) in RDS files. They can all be read directly into R.
 
@@ -183,36 +184,50 @@ Here is a chart to breakdown the number of cell lines for each *RAS* alleles acr
 ![ras_cell_lines](images/ras_alleles_per_tissue.png)
 
 
-### synthetic_lethal/
+### rnai\_synthetic\_lethal/
 
-I had to split up the synthetic lethal data by tissue so that each data file was small enough to push to GitHub. These are stored in "data/synthetic_lethal/". All or a selection of them can be loaded using `load\_synthetic\_lethal`. It returns a single tibble of the desired data. The only new column here is `score` which holds the lethality score that DepMap calculated.
+I had to split up the RNAi synthetic lethal data by tissue so that each data file was small enough to push to GitHub. These are stored in "data/rnai\_synthetic\_lethal/". All or a selection of them can be loaded using `load_rnai_synthetic_lethal`, shown below. It returns a single tibble of the desired tissues' data. The column `score` holds the lethality score that DepMap calculated.
 
 ```{r load_snytheticlethal}
-load_synthetic_lethal <- function(tissues = "all") {
+# general function for loadng tissue data from a directory
+load_tissue_data <- function(dir, tissues = "all") {
     tissues <- paste0(tissues, collapse = "|")
-    synlet_path <- file.path("data", "synthetic_lethal")
-    synlet_files <- list.files(synlet_path, full.name = TRUE,
-                               pattern = "_syn_lethal.tib")
+    tidy_path <- file.path("data", dir)
+    tidy_files <- list.files(tidy_path, full.name = TRUE)
     if (tissues != "all") {
-        synlet_files <-  stringr::str_subset(synlet_files, tissues)
+        tidy_files <-  stringr::str_subset(tidy_files, tissues)
     }
-    synlet <- purrr::map(synlet_files, readRDS) %>% bind_rows()
-    return(synlet)
+    tidy_tib <- purrr::map(tidy_files, readRDS) %>% bind_rows()
+    return(tidy_tib)
+}
+# specifically for RNAi synthetic lethality
+load_rnai_synthetic_lethal <- function(tissues) {
+    load_tissue_data(dir = "rnai_synthetic_lethal", tissues = tissues)
 }
 ```
 
-A specific selection of tissues can be loaded by passing a vector of the tissue names (from the file names).
+A specific selection of tissues can be loaded by passing a vector of the tissue names (from the file names). Alternatively, all tissues can be gathered by not passing anything.
 
 ```{r example_fewtissues}
-cervix_synlet <- load_synthetic_lethal(c("CERVIX", "BONE"))
-cervix_synlet
+load_rnai_synthetic_lethal(c("CERVIX", "BONE"))
 ```
 
-Or all tissues can be gathered by not passing anything.
 
-```{r example_alltissues}
-synthetic_lethal <- load_synthetic_lethal()
-synthetic_lethal
+### gene\_effect.tib
+
+ This data is from the CRISPR-based screens. It is stored as a tibble of the CERES- and batch-adjusted essentiality scores for each gene targeted in each cell line. CERES adjusts the depletion score for the copy number of the gene [[PMID: 29083409](https://www.nature.com/articles/ng.3984)].
+
+```{r show_geneeffect}
+readRDS(file.path("data", "gene_effect.tib"))
+```
+
+
+### gene\_dependency.tib
+
+This data is from the CRISPR-based screens. It is stored as a tibble with scores for the probability that knocking out the gene has a real depletion effect (corrected for batch effects).
+
+```{r show_genedepend}
+readRDS(file.path("data", "gene_dependency.tib"))
 ```
 
 
@@ -227,29 +242,19 @@ readRDS(file.path("data", "gene_essentiality.tib"))
 
 ### copy\_number/
 
-The full tibble was too large to push to GitHub (and probably to warrant loading every single time), so I separated it by cell line and stored each as a tibble in "data/copy_number". Again, I supply a function below to retrieve each one.
+The full tibble was too large to push to GitHub (and probably to warrant loading every time), so I separated it by primary disease and stored each as a tibble in "data/copy_number". Again, I supply a function below to retrieve each one or all (default) tissues.
 
 ```{r load_celllinecopynum}
-load_copy_number <- function(cell_line = "all") {
-    cell_line <- paste0(cell_line, collapse = "|")
-    copynum_path <- file.path("data", "copy_number")
-    copynum_files <- list.files(copynum_path, full.name = TRUE,
-                               pattern = "_syn_lethal.tib")
-    if (cell_line != "all") {
-        copynum_files <-  stringr::str_subset(copynum_files, cell_line)
-    }
-    copynum <- purrr::map(copynum_files, readRDS) %>% bind_rows()
-    return(copynum)
+load_copy_number <- function(tissues = "all") {
+    load_tissue_data(dir = "copy_number", tissues = tissues)
 }
 ```
 
 Here is an example.
 
 ```{r show_celllinecopynum}
-load_copy_number("ACH-000690")
+load_copy_number(c("CERVIX", "BONE"))
 ```
-
-*I will add other cell line information in the future.*
 
 ---
 
@@ -261,11 +266,10 @@ A graph was created for the dependency score in each *RAS*-mutant cell line. Eac
 
 ```{r show_rasdependencygraph.gr}
 library(tidygraph)
-ras_dependency_graph <- readRDS(file.path("data", "ras_dependency_graph.gr"))
-ras_dependency_graph
+readRDS(file.path("data", "ras_dependency_graph.gr"))
 ```
 
-Here is an example of the colorectal cancer cell lines with *KRAS* mutations in the hotspot codons, only showing edges for scores greater than 1 (red) or less than -1 (blue). If there were multiple scores for a target-*RAS* allele, the median value was used.
+Here is an example of the colorectal cancer cell lines with *KRAS* mutations in the hotspot codons, only showing edges for scores less than -1. If there were multiple scores for a target-*RAS* allele, the median value was used. The color and edge width correlate with the CERES score.
 
 ![dependency_map](images/dependency_graph_nicely.png)
 

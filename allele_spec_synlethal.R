@@ -1,5 +1,6 @@
-
+#########################################
 ## Allele-Specific Synthetic Lethality ##
+#########################################
 
 # Are any gene synthetic lethal in a KRAS allele-specific fashion
 
@@ -23,19 +24,23 @@ ras_cancers <- c("Colon/Colorectal Cancer",
 
 #### ---- Load Data ---- ####
 
-dat <- readRDS(file.path("data", "synthetic_lethal.tib"))
+dat <- readRDS(file.path("data", "gene_effect.tib"))
+ras <- readRDS(file.path("data", "cell_line_ras_anno.tib")) %>%
+    mutate(tissue = str_split_fixed(CCLE_Name, "_", 2)[, 2]) %>%
+    dplyr::select(DepMap_ID, tissue, ras, allele, ras_allele)
 
 ras_synlethal <- dat %>%
+    left_join(ras, by = "DepMap_ID") %>%
     filter(allele != "WT") %>%
     group_by(ras_allele) %>%
-    filter(n_distinct(cell_line) >= 2) %>%
+    filter(n_distinct(DepMap_ID) >= 2) %>%
     ungroup()
 
 
 #### ---- Plotting Number of Alleles ---- ####
 
 cellline_tib <- ras_synlethal %>%
-    dplyr::select(cell_line, tissue, ras, allele, ras_allele) %>%
+    dplyr::select(DepMap_ID, tissue, ras, allele, ras_allele) %>%
     unique()
 
 get_codon_label <- function(allele) {
@@ -48,7 +53,7 @@ get_codon_label <- function(allele) {
 # number of each RAS allele per all tissues
 cellline_tib %>%
     group_by(ras_allele, tissue, ras, allele) %>%
-    summarise(num_cell_lines = n_distinct(cell_line)) %>%
+    summarise(num_cell_lines = n_distinct(DepMap_ID)) %>%
     ungroup() %>%
     mutate(ras_allele = str_replace_all(ras_allele, "_", " "),
            tissue = str_replace_all(tissue, "_", " "),
@@ -67,7 +72,7 @@ ggsave(filename = file.path("images", "ras_alleles_per_tissue.png"),
 cellline_tib %>%
     filter(tissue %in% sensitive_tissues) %>%
     group_by(ras_allele, tissue, ras, allele) %>%
-    summarise(num_cell_lines = n_distinct(cell_line)) %>%
+    summarise(num_cell_lines = n_distinct(DepMap_ID)) %>%
     ungroup() %>%
     mutate(ras_allele = str_replace_all(ras_allele, "_", " "),
            tissue = str_replace_all(tissue, "_", " "),
@@ -86,10 +91,11 @@ ggsave(filename = file.path("images", "ras_alleles_per_sensitive_tissue.png"),
 #### ---- Plotting Dependence on Ras ---- ####
 
 ras_synlethal %>%
-    dplyr::select(gene, cell_line, tissue, score, ras_allele, ras, allele) %>%
+    dplyr::select(gene, DepMap_ID, tissue, CERES_score,
+                  ras_allele, ras, allele) %>%
     filter(gene == ras) %>%
     group_by(ras_allele, tissue, ras, allele) %>%
-    summarise(avg_score = median(score)) %>%
+    summarise(avg_score = median(CERES_score)) %>%
     ungroup() %>%
     mutate(ras_allele = str_replace_all(ras_allele, "_", " "),
            tissue = str_replace_all(tissue, "_", " "),
@@ -109,43 +115,38 @@ ggsave(filename = file.path("images", "ras_dependence.png"),
        width = 9, height = 5.5, units = "in", dpi = 200)
 
 
-#### ---- Ras Dependency Network ---- ####
-# Put all of the data into a tidygraph
-ras_dependency_gr <- ras_synlethal %>%
-    mutate(codon = get_codon_label(allele)) %>%
-    filter(gene != ras & Primary_Disease %in% ras_cancers) %>%
-    dplyr::select(ras_allele, gene, cell_line, tissue, score,
-                  ras, allele, codon,
-                  Primary_Disease, Subtype_Disease) %>%
-    as_tbl_graph(directed = FALSE) %N>%
-    mutate(gene_group = ifelse(str_detect(name, "_"), "ras", "target"))
-saveRDS(ras_dependency_gr, file.path("data", "ras_dependency_graph.gr"))
+#### ---- Plot Example Ras Dependency Network ---- ####
+ras_dependency_gr <- readRDS(file.path("data", "ras_dependency_graph.gr"))
 
-ras_dependency_gr %E>%
-    filter(Primary_Disease == ras_cancers[[1]] &
+gr <- ras_dependency_gr  %>%
+    convert(to_undirected, .clean = TRUE) %E>%
+    select(from, to, cancer, ras_allele, ras, codon, CERES_score) %>%
+    filter(cancer == "COAD" &
            ras == "KRAS" &
            codon %in% c("12", "13", "61", "146") &
-           abs(score) >= 1) %>%
-    group_by(from, to, tissue, ras, allele, Primary_Disease, Subtype_Disease) %>%
-    filter(score == median(score)) %>%
+           CERES_score <= -1) %>%
+    group_by(from, to, cancer, ras_allele, ras, codon) %>%
+    mutate(CERES_score = median(CERES_score)) %>%
     ungroup() %>%
-    mutate(score = ifelse(score > 2, 2, score),
-           score = ifelse(score < -2, -2, score)) %N>%
-    filter(centrality_degree() > 0) %>%
+    filter(edge_is_multiple()) %>%
+    mutate(CERES_score = ifelse(CERES_score > 2, 2, CERES_score),
+           CERES_score = ifelse(CERES_score < -2, -2, CERES_score)) %N>%
     mutate(label = ifelse(gene_group == "ras", name, ""),
-           label = str_replace_all(label, "_", " ")) %>%
-    ggraph(layout = "nicely") +
-    geom_edge_link(aes(width = abs(score), color = score)) +
+           label = str_replace_all(label, "_", " ")) %N>%
+    filter(centrality_degree() > 0)
+ggraph(gr, layout = "kk") +
+    geom_edge_link(aes(width = abs(CERES_score), color = CERES_score)) +
     geom_node_point(aes(color = gene_group, size = gene_group)) +
     geom_node_text(aes(label = label),
                    color = "black",
                    repel = TRUE,
                    size = 7) +
-    scale_edge_width_continuous(range = c(0.1, 1)) +
-    scale_edge_color_gradient2(low = "dodgerblue", high = "tomato") +
+    scale_edge_width_continuous(range = c(0.1, 2)) +
+    scale_edge_color_distiller(type = "seq", palette = "YlOrRd") +
     scale_size_manual(values = c("ras" = 5, "target" = 0.5), guide = FALSE) +
-    scale_color_manual(values = c("ras" = "black", target = "grey40"), guide = FALSE) +
+    scale_color_manual(values = c("ras" = "black", target = "grey40"),
+                       guide = FALSE) +
     theme_void() +
-    theme(panel.background = element_rect(fill = "grey95"))
+    theme(panel.background = element_rect(fill = "white"))
 ggsave(file.path("images", "dependency_graph_nicely.png"),
        width = 22, height = 19, units = "in", dpi = 200)

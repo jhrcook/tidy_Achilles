@@ -1,6 +1,6 @@
 data/D2_combined_gene_dep_scores.csv
 data/depmap_19Q1_mutation_calls.csv
-data/synthetic_lethal.tib
+data/rnai_synthetic_lethal.tib
 data/public_19Q1_gene_cn.csv
 data/cell_line_copy_number.tib
 data/gene_dependency_corrected.csv
