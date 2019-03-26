@@ -40,9 +40,11 @@ web address: https://portals.broadinstitute.org/ccle
 
 ## Raw Data
 
+
 ### DepMap-2019q1-celllines_v2.csv
 
 Information on cell lines from the Broad's [Cancer Cell Line Encyclopedia (CCLE)](https://portals.broadinstitute.org/ccle). The tidy data is available in "cell\_line\_metadata.tib".
+
 
 ### depmap\_19Q1\_mutation\_calls.csv
 
@@ -53,6 +55,7 @@ To access the file, decompress it with a GUI tool (usually double-click on Mac w
 ```bash
 gunzip data/depmap_19Q1_mutation_calls.csv.gz
 ```
+
 
 ### D2\_combined\_gene\_dep\_scores.csv
 
@@ -66,13 +69,16 @@ To access the file, decompress it with a GUI tool (usually double-click on Mac w
 gunzip data/D2_combined_gene_dep_scores.csv.gz
 ```
 
+
 ### nonessential\_genes.txt and essential\_genes.txt
 
 Just a list of genes the DepMap project has declared as essential or nonessential in all cell lines. The tidy data is available in "gene_essentiality.tib".
 
+
 ### public\_19Q1\_gene\_cn.csv
 
 A cell line x gene matrix of copy number calls (they use GATK). The data was broken down by cell line - see below for how to easily load the desired data.
+
 
 ### gene\_effect\_corrected.csv
 
@@ -82,6 +88,7 @@ Thie is a cell line x gene matrix of CERES data normalized to positive controls.
 gunzip data/gene_effect_corrected.csv.gz
 ```
 
+
 ### gene\_dependency\_corrected.csv
 
 This is a cell line x gene matrix of the probability that knocking out the gene has a real depletion effect. The "correction" was to remove batch effects.
@@ -89,6 +96,12 @@ This is a cell line x gene matrix of the probability that knocking out the gene 
 ```bash
 gunzip data/gene_dependency_corrected.csv.gz
 ```
+
+
+### guide\_gene\_map.csv
+
+The mapping of each small guide RNA (sgRNA) to its target gene. The tidy data is available in "guide\_gene\_map.tib".
+
 
 ### To be added
 
@@ -255,6 +268,16 @@ Here is an example.
 ```{r show_celllinecopynum}
 load_copy_number(c("CERVIX", "BONE"))
 ```
+
+
+### guide\_gene\_map.tib
+
+The mapping of each small guide RNA (sgRNA) to its target gene.
+
+```{r show_guidegenemap}
+readRDS(file.path("data", "guide_gene_map.tib"))
+```
+
 
 ---
 

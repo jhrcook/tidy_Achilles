@@ -120,3 +120,10 @@ a <- cn_tib %>%
     pmap(save_tib_by_tissue,
          save_dir = "copy_number",
          save_suffix = "_copynum.tib")
+
+
+#### ---- Guide Maps ---- ####
+guide_tib <- read_csv("data/guide_gene_map.csv") %>%
+    mutate(Entrez = str_extract(gene, "(?<=\\()[:digit:]+(?=\\))"),
+           gene = str_extract(gene, "^.+(?=[:space:])")) %T>%
+    saveRDS("guide_gene_map.tib")

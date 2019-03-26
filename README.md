@@ -111,6 +111,11 @@ batch effects.
 gunzip data/gene_dependency_corrected.csv.gz
 ```
 
+### guide\_gene\_map.csv
+
+The mapping of each small guide RNA (sgRNA) to its target gene. The tidy
+data is available in “guide\_gene\_map.tib”.
+
 ### To be added
 
 Any others? Open an
@@ -454,6 +459,28 @@ load_copy_number(c("CERVIX", "BONE"))
 #> #   Subtype_Disease <chr>, Gender <chr>, Source <chr>, tissue <chr>
 ```
 
+### guide\_gene\_map.tib
+
+The mapping of each small guide RNA (sgRNA) to its target gene.
+
+``` r
+readRDS(file.path("data", "guide_gene_map.tib"))
+#> # A tibble: 71,140 x 5
+#>    sgrna                genome_alignment  gene      n_alignments Entrez
+#>    <chr>                <chr>             <chr>            <dbl> <chr> 
+#>  1 AAAAAAATCCAGCAATGCAG chr10_112724378_+ SHOC2                1 8036  
+#>  2 AAAAAACCCGTAGATAGCCT chr12_95397391_+  NDUFA12              1 55967 
+#>  3 AAAAAAGAAGAAAAAACCAG chr4_76891509_-   SDAD1                1 55153 
+#>  4 AAAAAAGCTCAAGAAGGAGG chr2_33813513_-   FAM98A               1 25940 
+#>  5 AAAAAAGGCTGTAAAAGCGT chr19_20002409_+  ZNF253               1 56242 
+#>  6 AAAAAAGGGCTCCAAAAAGG chr6_26199835_+   HIST1H2BF            1 8343  
+#>  7 AAAAACAACACATCAGAGCG chr14_64688272_-  SYNE2                1 23224 
+#>  8 AAAAACTCTGGGAAATGACT chr1_229440884_+  SPHAR                1 10638 
+#>  9 AAAAAGACAACCTCGCCCTG chr11_64757251_-  BATF2                1 116071
+#> 10 AAAAAGAGCTGTTTGAACAA chr1_59154718_-   MYSM1                1 114803
+#> # … with 71,130 more rows
+```
+
 -----
 
 ## Graphs
@@ -466,6 +493,11 @@ line. Each edge represents a score between a *RAS* allele and gene
 
 ``` r
 library(tidygraph)
+#> 
+#> Attaching package: 'tidygraph'
+#> The following object is masked from 'package:stats':
+#> 
+#>     filter
 readRDS(file.path("data", "ras_dependency_graph.gr"))
 #> # A tbl_graph: 17669 nodes and 3385728 edges
 #> #
