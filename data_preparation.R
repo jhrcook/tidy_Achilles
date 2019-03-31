@@ -126,4 +126,4 @@ a <- cn_tib %>%
 guide_tib <- read_csv("data/guide_gene_map.csv") %>%
     mutate(Entrez = str_extract(gene, "(?<=\\()[:digit:]+(?=\\))"),
            gene = str_extract(gene, "^.+(?=[:space:])")) %T>%
-    saveRDS("guide_gene_map.tib")
+    saveRDS(file.path("data", "guide_gene_map.tib"))
