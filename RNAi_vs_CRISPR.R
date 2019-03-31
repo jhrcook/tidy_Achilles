@@ -3,6 +3,7 @@
 ############################################
 
 library(tidyverse)
+library(ggrepel)
 
 rnai <- readRDS(file.path("data", "rnai_synthetic_lethal.tib")) %>%
     dplyr::rename(RNAi_score = "score")
@@ -77,6 +78,7 @@ ggsave(filename = file.path("images", "diff_RNAi_CRISPR_avg.png"),
 #### ---- High CRISPR, low RNAi Outliers ---- ####
 
 # outliers as a CRISPR score of at least 1
+cat("the number of cell lines with a CRISPR score of ≥1 for each gene")
 dat %>%
     filter(CRISPR_score >= 1) %>%
     group_by(gene) %>%
@@ -116,13 +118,24 @@ outlier_dat <- dat %>%
     filter(gene %in% outliers) %>%
     left_join(copynum_select, by = c("gene", "DepMap_ID"))
 
+# outliers with missing copy number data
+cat("number of cell lines missing data for the outlier genes:\n")
+outlier_dat %>%
+    filter(is.na(copy_number)) %>%
+    group_by(gene) %>%
+    summarise(n_cells = n_distinct(DepMap_ID)) %>%
+    ungroup() %>%
+    arrange(desc(n_cells))
+
+
 minmax <- function(x, lower, upper) {
     if (is.na(x)) return(x)
     return(min(max(x, lower), upper))
 }
 
-g <- outlier_dat %>%
-    mutate(copy_number = map_dbl(copy_number, minmax, lower = -2, upper = 2)) %>%
+outlier_dat %>%
+    mutate(copy_number = map_dbl(copy_number, minmax, lower = -2, upper = 2),
+           point_label = ifelse(is.na(copy_number), gene, "")) %>%
     ggplot(aes(x = CRISPR_score, y = RNAi_score)) +
     geom_point(aes(color = copy_number), size = 0.2) +
     geom_hline(yintercept = 0, color = "grey50") +
