@@ -23,11 +23,11 @@ git clone https://github.com/jhrcook/tidy_Achilles.git
 
 All data was downloaded from the [Broad’s DepMap data
 repository](https://depmap.org/portal/download/all/).  
-web address: <https://depmap.org/portal/download/all/>
+**web address:** <https://depmap.org/portal/download/all/>
 
 You can also query genes, cell lines, lineages, etc. from their
 [website](https://depmap.org/portal/)  
-web address: <https://depmap.org/portal/>
+**web address:** <https://depmap.org/portal/>
 
 The cell line information was obtained from the [Cancer Cell Line
 Encyclopedia](https://portals.broadinstitute.org/ccle) - their query
@@ -35,7 +35,7 @@ portal is really useful, too. More data on the cell lines can be
 downloaded from their website. If you have an requests for data to add
 to this repo, please open a GitHub
 [issue](https://github.com/jhrcook/tidy_Achilles/issues).  
-web address: <https://portals.broadinstitute.org/ccle>
+**web address:** <https://portals.broadinstitute.org/ccle>
 
 -----
 
@@ -298,7 +298,7 @@ alleles across the tissues.
 
 ![ras\_cell\_lines](images/ras_alleles_per_tissue.png)
 
-### rnai\_synthetic\_lethal/
+### rnai\_synthetic\_lethal (directory)
 
 I had to split up the RNAi synthetic lethal data by tissue so that each
 data file was small enough to push to GitHub. These are stored in
@@ -425,7 +425,7 @@ readRDS(file.path("data", "gene_essentiality.tib"))
 #> # … with 983 more rows
 ```
 
-### copy\_number/
+### copy\_number (directory)
 
 The full tibble was too large to push to GitHub (and probably to warrant
 loading every time), so I separated it by primary disease and stored
@@ -537,6 +537,21 @@ Below are the dependency values each *RAS* allele on the corresponding
 *RAS* gene.
 
 ![ras\_dependency](images/ras_dependence.png)
+
+-----
+
+## Comparing RNAi vs. CRISPR screens
+
+Below is a plot of all the data points where both RNAi and CRISPR screen
+scores are available for a cell line and gene.
+
+![all\_points](images/diff_RNAi_CRISPR_individual.png)
+
+Below is a plot of all the data points where both RNAi and CRISPR screen
+scores are available for a disease and gene, with each score being
+average across the cell lines.
+
+![disease\_avg](images/diff_RNAi_CRISPR_avg.png)
 
 -----
 
