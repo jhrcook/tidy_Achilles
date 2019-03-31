@@ -5,6 +5,7 @@ data/public_19Q1_gene_cn.csv
 data/cell_line_copy_number.tib
 data/gene_dependency_corrected.csv
 data/gene_effect_corrected.csv
+README_cache
 
 Rplots.pdf
 
