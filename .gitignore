@@ -6,6 +6,7 @@ data/cell_line_copy_number.tib
 data/gene_dependency_corrected.csv
 data/gene_effect_corrected.csv
 README_cache
+README.html
 
 Rplots.pdf
 
