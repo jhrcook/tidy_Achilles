@@ -4,6 +4,7 @@
 
 # Parse and prepare data from the Broad's Achilles project
 
+library(jhcutils)
 library(magrittr)
 library(tidyverse)
 
@@ -22,9 +23,9 @@ save_tib_by_tissue <- function(tissue, data, save_dir, save_suffix) {
 
 
 #### ---- Cell Line Meta ---- ####
-ccle <- read_csv(data_file_path("DepMap-2019q1-celllines_v2.csv"))
-colnames(ccle) %<>% str_replace_all(" ", "_")
-saveRDS(ccle, data_file_path("cell_line_metadata.tib"))
+ccle <- read_csv(data_file_path("DepMap-2019q1-celllines_v2.csv")) %>%
+    jhcutils::tidy_colnames() %T>%
+    saveRDS(data_file_path("cell_line_metadata.tib"))
 
 
 #### ---- Cell Line Mutations ---- ####
@@ -34,22 +35,24 @@ cell_mutations <- read_csv(data_file_path("depmap_19Q1_mutation_calls.csv")) %>%
 
 
 #### ---- Ras-mutant Cell Lines (with anno.) ---- ####
-ras_muts <- cell_mutations %>%
-    filter(Hugo_Symbol %in% c("KRAS", "NRAS", "HRAS")) %>%
-    mutate(amino_acid_mut = str_remove_all(Protein_Change, "^p\\.")) %>%
-    dplyr::select(Tumor_Sample_Barcode, Hugo_Symbol, amino_acid_mut) %>%
-    mutate(ras_allele = paste0(Hugo_Symbol, "_", amino_acid_mut))
-colnames(ras_muts) <- c("DepMap_ID", "ras", "allele", "ras_allele")
-ras_muts_anno <- left_join(ras_muts, ccle, by = "DepMap_ID") %T>%
-    saveRDS(data_file_path("ras_muts_annotated.tib"))
+# TODO: remove
+# ras_muts <- cell_mutations %>%
+#     filter(Hugo_Symbol %in% c("KRAS", "NRAS", "HRAS")) %>%
+#     mutate(amino_acid_mut = str_remove_all(Protein_Change, "^p\\.")) %>%
+#     dplyr::select(Tumor_Sample_Barcode, Hugo_Symbol, amino_acid_mut) %>%
+#     mutate(ras_allele = paste0(Hugo_Symbol, "_", amino_acid_mut))
+# colnames(ras_muts) <- c("DepMap_ID", "ras", "allele", "ras_allele")
+# ras_muts_anno <- left_join(ras_muts, ccle, by = "DepMap_ID") %T>%
+#     saveRDS(data_file_path("ras_muts_annotated.tib"))
 
 
 #### ---- Cell Line Meta (with Ras-mutant anno.) ---- ####
-ccle_ras_muts <- full_join(ccle, ras_muts, by = "DepMap_ID") %>%
-    mutate(ras = ifelse(is.na(ras), "WT", ras),
-           allele = ifelse(is.na(allele), "WT", allele),
-           ras_allele = ifelse(is.na(ras_allele), "WT", ras_allele)) %T>%
-    saveRDS(data_file_path("cell_line_ras_anno.tib"))
+# TODO: remove
+# ccle_ras_muts <- full_join(ccle, ras_muts, by = "DepMap_ID") %>%
+#     mutate(ras = ifelse(is.na(ras), "WT", ras),
+#            allele = ifelse(is.na(allele), "WT", allele),
+#            ras_allele = ifelse(is.na(ras_allele), "WT", ras_allele)) %T>%
+#     saveRDS(data_file_path("cell_line_ras_anno.tib"))
 
 
 #### ---- RNAi Synthetic Lethal Data ---- ####
@@ -60,7 +63,7 @@ rnai_synlet <- read_csv(data_file_path("D2_combined_gene_dep_scores.csv")) %>%
            gene = str_extract(gene, "^.+(?=[:space:])"),
            tissue = str_split_fixed(cell_line, "_", 2)[, 2]) %>%
     select(gene, Entrez, cell_line, tissue, score) %>%
-    left_join(ccle_ras_muts, by = c("cell_line" = "CCLE_Name")) %T>%
+    left_join(ccle, by = c("cell_line" = "CCLE_Name")) %T>%
     saveRDS(data_file_path("rnai_synthetic_lethal.tib"))
 
 a <- rnai_synlet %>%
