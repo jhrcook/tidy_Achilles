@@ -8,9 +8,8 @@
 **last updated: March 15, 2019**
 
 This is “tidy” data from the Broad’s [Project
-Achilles](https://depmap.org/portal/achilles/) with a focus of the
-various *RAS* alleles. The data files are in the “data” directory and
-exaplined below.
+Achilles](https://depmap.org/portal/achilles/). The data files are in
+the “data” directory and exaplined below.
 
 To download this repository, run the following command on the command
 line.
@@ -238,66 +237,6 @@ annotation
 **SangerRecalibWES\_AC**, **RNAseq\_AC**, **HC\_AC**, **RD\_AC**,
 **WGS\_AC** - various accession IDs
 
-### cell\_line\_ras\_anno.tib
-
-The cell line information with the status of the *RAS* isoforms. If they
-are all wild-type, then the `ras` and `allele` columns will both be
-`"WT"`. If a cell line has multiple RAS mutations, each one is a
-separate
-row.
-
-``` r
-cell_line_ras_anno <- readRDS(file.path("data", "cell_line_ras_anno.tib"))
-cell_line_ras_anno
-#> # A tibble: 1,745 x 12
-#>    DepMap_ID CCLE_Name Aliases COSMIC_ID Sanger_ID Primary_Disease
-#>    <chr>     <chr>     <chr>       <dbl>     <dbl> <chr>          
-#>  1 ACH-0000… NIHOVCAR… NIH:OV…    905933      2201 Ovarian Cancer 
-#>  2 ACH-0000… HL60_HAE… HL-60      905938        55 Leukemia       
-#>  3 ACH-0000… CACO2_LA… CACO2;…        NA        NA Colon/Colorect…
-#>  4 ACH-0000… HEL_HAEM… HEL        907053       783 Leukemia       
-#>  5 ACH-0000… HEL9217_… HEL 92…        NA        NA Leukemia       
-#>  6 ACH-0000… MONOMAC6… MONO-M…    908148      2167 Leukemia       
-#>  7 ACH-0000… LS513_LA… LS513      907795       569 Colon/Colorect…
-#>  8 ACH-0000… C2BBE1_L… C2BBe1     910700      2104 Colon/Colorect…
-#>  9 ACH-0000… NCIH2077… NCI-H2…        NA        NA Lung Cancer    
-#> 10 ACH-0000… 253J_URI… 253J           NA        NA Bladder Cancer 
-#> # … with 1,735 more rows, and 6 more variables: Subtype_Disease <chr>,
-#> #   Gender <chr>, Source <chr>, ras <chr>, allele <chr>, ras_allele <chr>
-```
-
-### ras\_muts\_annotated.tib
-
-The *RAS* mutant cell lines. This if the same data as in
-“cell\_line\_ras\_anno.tib”, but only *RAS* mutants. The columns are
-in a different order, but hold the same
-data.
-
-``` r
-ras_muts_annotated <- readRDS(file.path("data", "ras_muts_annotated.tib"))
-ras_muts_annotated
-#> # A tibble: 420 x 12
-#>    DepMap_ID ras   allele ras_allele CCLE_Name Aliases COSMIC_ID Sanger_ID
-#>    <chr>     <chr> <chr>  <chr>      <chr>     <chr>       <dbl>     <dbl>
-#>  1 ACH-0000… NRAS  Q61L   NRAS_Q61L  HL60_HAE… HL-60      905938        55
-#>  2 ACH-0000… KRAS  G12D   KRAS_G12D  LS513_LA… LS513      907795       569
-#>  3 ACH-0000… HRAS  G12V   HRAS_G12V  T24_URIN… T24        724812      1455
-#>  4 ACH-0000… KRAS  G12V   KRAS_G12V  PATU8988… PA-TU-…        NA        NA
-#>  5 ACH-0000… KRAS  G12V   KRAS_G12V  PATU8988… PA-TU-…   1240201      1242
-#>  6 ACH-0000… NRAS  Q61K   NRAS_Q61K  CH157MN_… CH-157…        NA        NA
-#>  7 ACH-0000… KRAS  Q61R   KRAS_Q61R  PANC0213… Panc 0…        NA        NA
-#>  8 ACH-0000… NRAS  Q61L   NRAS_Q61L  PLB985_H… PLB985…        NA        NA
-#>  9 ACH-0000… KRAS  G12D   KRAS_G12D  PANC0203… Panc 0…   1298475      1838
-#> 10 ACH-0000… NRAS  G13D   NRAS_G13D  NCIH929_… NCI-H9…    724825      1230
-#> # … with 410 more rows, and 4 more variables: Primary_Disease <chr>,
-#> #   Subtype_Disease <chr>, Gender <chr>, Source <chr>
-```
-
-Here is a chart to breakdown the number of cell lines for each *RAS*
-alleles across the tissues.
-
-![ras\_cell\_lines](images/ras_alleles_per_tissue.png)
-
 ### rnai\_synthetic\_lethal (directory)
 
 I had to split up the RNAi synthetic lethal data by tissue so that each
@@ -480,63 +419,6 @@ readRDS(file.path("data", "guide_gene_map.tib"))
 #> 10 AAAAAGAGCTGTTTGAACAA chr1_59154718_-   MYSM1                1 114803
 #> # … with 71,130 more rows
 ```
-
------
-
-## Graphs
-
-### ras\_dependency\_graph.gr
-
-A graph was created for the dependency score in each *RAS*-mutant cell
-line. Each edge represents a score between a *RAS* allele and gene
-(including the *RAS* isoforms).
-
-``` r
-library(tidygraph)
-#> 
-#> Attaching package: 'tidygraph'
-#> The following object is masked from 'package:stats':
-#> 
-#>     filter
-readRDS(file.path("data", "ras_dependency_graph.gr"))
-#> # A tbl_graph: 17669 nodes and 3385728 edges
-#> #
-#> # A directed acyclic multigraph with 1 component
-#> #
-#> # Node Data: 17,669 x 2 (active)
-#>   name       gene_group
-#>   <chr>      <chr>     
-#> 1 KRAS_G12D  ras       
-#> 2 WT         ras       
-#> 3 KRAS_G12V  ras       
-#> 4 KRAS_Q61H  ras       
-#> 5 KRAS_G12R  ras       
-#> 6 KRAS_A146A ras       
-#> # … with 1.766e+04 more rows
-#> #
-#> # Edge Data: 3,385,728 x 20
-#>    from    to DepMap_ID gene  CERES_score Entrez CCLE_Name Aliases
-#>   <int> <int> <chr>     <chr>       <dbl> <chr>  <chr>     <chr>  
-#> 1     1    36 ACH-0000… A1BG       0.0433 1      LS513_LA… LS513  
-#> 2     2    36 ACH-0000… A1BG       0.0705 1      C2BBE1_L… C2BBe1 
-#> 3     2    36 ACH-0000… A1BG      -0.0104 1      HCC827_L… HCC827 
-#> # … with 3.386e+06 more rows, and 12 more variables: COSMIC_ID <dbl>,
-#> #   Sanger_ID <dbl>, Primary_Disease <chr>, Subtype_Disease <chr>,
-#> #   Gender <chr>, Source <chr>, cancer <chr>, ras <chr>, allele <chr>,
-#> #   ras_allele <chr>, codon <chr>, num_celllines <int>
-```
-
-Here is an example of the colorectal cancer cell lines with *KRAS*
-mutations in the hotspot codons, only showing edges for scores less than
--1. If there were multiple scores for a target-*RAS* allele, the median
-value was used. The color and edge width correlate with the CERES score.
-
-![dependency\_map](images/dependency_graph_nicely.png)
-
-Below are the dependency values each *RAS* allele on the corresponding
-*RAS* gene.
-
-![ras\_dependency](images/ras_dependence.png)
 
 -----
 

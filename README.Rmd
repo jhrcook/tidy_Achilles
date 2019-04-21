@@ -18,7 +18,7 @@ knitr::opts_chunk$set(comment = "#>",
 
 **last updated: March 15, 2019**
 
-This is "tidy" data from the Broad's [Project Achilles](https://depmap.org/portal/achilles/) with a focus of the various *RAS* alleles. The data files are in the "data" directory and exaplined below.
+This is "tidy" data from the Broad's [Project Achilles](https://depmap.org/portal/achilles/). The data files are in the "data" directory and exaplined below.
 
 To download this repository, run the following command on the command line.
 
@@ -174,30 +174,6 @@ cell_line_mutations
 **ExAC\_AF**, **VA\_WES\_AC**, **CGA\_WES\_AC**, **SangerWES\_AC**, **SangerRecalibWES\_AC**, **RNAseq\_AC**, **HC\_AC**, **RD\_AC**, **WGS\_AC** -  various accession IDs
 
 
-### cell\_line\_ras\_anno.tib
-
-The cell line information with the status of the *RAS* isoforms. If they are all wild-type, then the `ras` and `allele` columns will both be `"WT"`. If a cell line has multiple RAS mutations, each one is a separate row.
-
-```{r show_celllinerasanno}
-cell_line_ras_anno <- readRDS(file.path("data", "cell_line_ras_anno.tib"))
-cell_line_ras_anno
-```
-
-
-### ras\_muts\_annotated.tib
-
-The *RAS* mutant cell lines. This if the same data as in "cell\_line\_ras\_anno.tib", but only *RAS* mutants. The columns are in  a different order, but hold the same data.
-
-```{r show_rasmutsannotated}
-ras_muts_annotated <- readRDS(file.path("data", "ras_muts_annotated.tib"))
-ras_muts_annotated
-```
-
-Here is a chart to breakdown the number of cell lines for each *RAS* alleles across the tissues.
-
-![ras_cell_lines](images/ras_alleles_per_tissue.png)
-
-
 ### rnai\_synthetic\_lethal (directory)
 
 I had to split up the RNAi synthetic lethal data by tissue so that each data file was small enough to push to GitHub. These are stored in "data/rnai\_synthetic\_lethal/". All or a selection of them can be loaded using `load_rnai_synthetic_lethal`, shown below. It returns a single tibble of the desired tissues' data. The column `score` holds the lethality score that DepMap calculated.
@@ -279,27 +255,6 @@ The mapping of each small guide RNA (sgRNA) to its target gene.
 readRDS(file.path("data", "guide_gene_map.tib"))
 ```
 
-
----
-
-## Graphs
-
-### ras\_dependency\_graph.gr
-
-A graph was created for the dependency score in each *RAS*-mutant cell line. Each edge represents a score between a *RAS* allele and gene (including the *RAS* isoforms).
-
-```{r show_rasdependencygraph.gr}
-library(tidygraph)
-readRDS(file.path("data", "ras_dependency_graph.gr"))
-```
-
-Here is an example of the colorectal cancer cell lines with *KRAS* mutations in the hotspot codons, only showing edges for scores less than -1. If there were multiple scores for a target-*RAS* allele, the median value was used. The color and edge width correlate with the CERES score.
-
-![dependency_map](images/dependency_graph_nicely.png)
-
-Below are the dependency values each *RAS* allele on the corresponding *RAS* gene.
-
-![ras_dependency](images/ras_dependence.png)
 
 ---
 
