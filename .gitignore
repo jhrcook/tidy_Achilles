@@ -1,10 +1,10 @@
-data/D2_combined_gene_dep_scores.csv
-data/depmap_19Q1_mutation_calls.csv
-data/rnai_synthetic_lethal.tib
-data/public_19Q1_gene_cn.csv
-data/cell_line_copy_number.tib
-data/gene_dependency_corrected.csv
-data/gene_effect_corrected.csv
+data/Achilles_gene_dependency.csv
+data/Achilles_gene_effect.csv
+data/CCLE_expression.csv
+data/CCLE_gene_cn.csv
+data/CCLE_mutations.csv
+data/CCLE_RNAseq_reads.csv
+
 README_cache
 README.html
 
