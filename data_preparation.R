@@ -8,8 +8,11 @@ library(jhcutils)
 library(magrittr)
 library(tidyverse)
 
+# reading and writing data from `data/` dir
 data_dir <- "data"
-data_file_path <- function(x) file.path(data_dir, x)
+file_data_path <- function(x) file.path(data_dir, x)
+read_data <- function(file, ...) read_csv(file_data_path(file), ...)
+write_data <- function(x, file, ...) saveRDS(x, file_data_path(file), ...)
 
 # save each tissue separately in a sub-directory of data
 save_tib_by_tissue <- function(tissue, data, save_dir, save_suffix) {
@@ -25,88 +28,31 @@ save_tib_by_tissue <- function(tissue, data, save_dir, save_suffix) {
 
 
 #### ---- Cell Line Meta ---- ####
-ccle <- read_csv(data_file_path("DepMap-2019q1-celllines_v2.csv")) %>%
+sample_info <- read_data("sample_info.csv") %>%
     janitor::clean_names() %T>%
-    saveRDS(data_file_path("cell_line_metadata.tib"))
+    write_data("cell_line_metadata.tib")
 
 
 #### ---- Cell Line Mutations ---- ####
-read_csv(data_file_path("depmap_19Q1_mutation_calls.csv")) %>%
+read_data("CCLE_mutations.csv") %>%
     janitor::clean_names() %>%
-    dplyr::select(-x1) %>%
-    saveRDS(data_file_path("cell_line_mutations.tib"))
-
-
-#### ---- RNAi Synthetic Lethal Data ---- ####
-rnai_synlet <- read_csv(data_file_path("D2_combined_gene_dep_scores.csv")) %>%
-    janitor::clean_names() %>%
-    gather(key = "cell_line", value = "achilles_score", -x1) %>%
-    dplyr::rename(gene = "x1") %>%
-    mutate(entrez = str_extract(gene, "(?<=\\()[:digit:]+(?=\\))"),
-           gene = str_extract(gene, "^.+(?=[:space:])"),
-           tissue = str_split_fixed(cell_line, "_", 2)[, 2]) %>%
-    select(gene, entrez, cell_line, tissue, achilles_score) %>%
-    left_join(ccle, by = c("cell_line" = "ccle_name")) %T>%
-    saveRDS(data_file_path("rnai_synthetic_lethal.tib"))
-
-a <- rnai_synlet %>%
-    group_by(tissue) %>%
-    nest() %>%
-    pmap(save_tib_by_tissue,
-         save_dir = "rnai_synthetic_lethal",
-         save_suffix = "_rnai_synlet.tib")
-
-rm(rnai_synlet)
-
-
-#### ---- Gene Effect ---- ####
-read_csv(data_file_path("gene_effect_corrected.csv")) %>%
-    janitor::clean_names() %>%
-    dplyr::rename(dep_map_id = "x1") %>%
-    tidyr::gather(key = "gene", value = "ceres_score", -dep_map_id) %>%
-    mutate(entrez = str_extract(gene, "(?<=\\()[:digit:]+(?=\\))"),
-           gene = str_extract(gene, "^.+(?=[:space:])")) %>%
-    left_join(ccle, by = "dep_map_id") %>%
-    saveRDS(data_file_path("gene_effect.tib"))
-
-
-#### ---- Gene Dependency ---- ####
-read_csv(data_file_path("gene_dependency_corrected.csv")) %>%
-    janitor::clean_names() %>%
-    dplyr::rename(dep_map_id = "line") %>%
-    tidyr::gather(key = "gene", value = "dependency_score", -dep_map_id) %>%
-    mutate(entrez = str_extract(gene, "(?<=\\()[:digit:]+(?=\\))"),
-           gene = str_extract(gene, "^.+(?=[:space:])")) %>%
-    left_join(ccle, by = "dep_map_id") %>%
-    saveRDS(data_file_path("gene_dependency.tib"))
-
-
-#### ---- Gene Essentiality  ---- ####
-essential_genes <- read_tsv(data_file_path("essential_genes.txt")) %>%
-    janitor::clean_names() %>%
-    mutate(is_essential = TRUE)
-nonessential_genes <- read_tsv(data_file_path("nonessential_genes.txt")) %>%
-    mutate(is_essential = FALSE)
-bind_rows(essential_genes, nonessential_genes) %>%
-    mutate(gene = str_extract(gene, "^.+(?=[:space:])")) %>%
-    saveRDS(data_file_path("gene_essentiality.tib"))
-
-rm(essential_genes, nonessential_genes)
+    dplyr::select(-x1, -x) %>%
+    write_data("cell_line_mutations.tib")
 
 
 #### ---- CNV ---- ####
-cn_tib <- read_csv(data_file_path("public_19Q1_gene_cn.csv"),
+cn_tib <- read_data("CCLE_gene_cn.csv",
                     col_types = cols(.default = "c")) %>%
-    janitor::clean_names() %>%
-    dplyr::rename(dep_map_id = "x1") %>%
+    dplyr::rename(dep_map_id = "X1") %>%
     tidyr::gather(key = "gene", value = "copy_number", -dep_map_id) %>%
+    janitor::clean_names() %>%
     mutate(copy_number = as.numeric(copy_number),
            gene = str_extract(gene, "^.+(?=[:space:])"))  %>%
-    left_join(ccle, by = "dep_map_id")  %>%
+    left_join(sample_info, by = "dep_map_id")  %>%
     mutate(tissue = str_remove_all(ccle_name, "\\[MERGED_TO.+\\]")) %>%
     mutate(tissue = str_split_fixed(tissue, "_", 2)[, 2]) %>%
     mutate(tissue = ifelse(is.na(ccle_name), "UNKNOWN", tissue)) %T>%
-    saveRDS(data_file_path("cell_line_copy_number.tib"))
+    write_data("cell_line_copy_number.tib")
 
 a <- cn_tib %>%
     group_by(tissue) %>%
@@ -118,9 +64,93 @@ a <- cn_tib %>%
 rm(cn_tib)
 
 
-#### ---- Guide Maps ---- ####
-read_csv("data/guide_gene_map.csv") %>%
+#### ---- Gene expression ---- ####
+gene_expr <- read_data("CCLE_expression.csv") %>%
+    dplyr::rename(dep_map_id = "X1") %>%
+    tidyr::gather(key = "gene", value = "gene_expression", -dep_map_id) %>%
     janitor::clean_names() %>%
-    mutate(entrez = str_extract(gene, "(?<=\\()[:digit:]+(?=\\))"),
-           gene = str_extract(gene, "^.+(?=[:space:])")) %>%
-    saveRDS(file.path("data", "guide_gene_map.tib"))
+    mutate(gene_expression = as.numeric(gene_expression),
+           gene = str_extract(gene, "^.+(?=[:space:])"))  %>%
+    left_join(sample_info, by = "dep_map_id")  %>%
+    mutate(tissue = str_remove_all(ccle_name, "\\[MERGED_TO.+\\]")) %>%
+    mutate(tissue = str_split_fixed(tissue, "_", 2)[, 2]) %>%
+    mutate(tissue = ifelse(is.na(ccle_name), "UNKNOWN", tissue)) %T>%
+    write_data("cell_line_gene_expression.tib")
+
+a <- gene_expr %>%
+    group_by(tissue) %>%
+    nest() %>%
+    pmap(save_tib_by_tissue,
+         save_dir = "gene_expression",
+         save_suffix = "_geneexpr.tib")
+
+rm(gene_expr)
+
+
+#### ---- Gene effect ---- ####
+read_data("Achilles_gene_effect.csv") %>%
+    dplyr::rename(dep_map_id = "X1") %>%
+    tidyr::gather(key = "gene", value = "gene_effect", -dep_map_id) %>%
+    janitor::clean_names() %>%
+    mutate(gene_effect = as.numeric(gene_effect),
+           gene = str_extract(gene, "^.+(?=[:space:])"))  %>%
+    left_join(sample_info, by = "dep_map_id")  %>%
+    mutate(tissue = str_remove_all(ccle_name, "\\[MERGED_TO.+\\]")) %>%
+    mutate(tissue = str_split_fixed(tissue, "_", 2)[, 2]) %>%
+    mutate(tissue = ifelse(is.na(ccle_name), "UNKNOWN", tissue)) %T>%
+    write_data("Achilles_gene_effect.tib")
+
+
+#### ---- Gene dependency ---- ####
+read_data("Achilles_gene_dependency.csv") %>%
+    dplyr::rename(dep_map_id = "X1") %>%
+    tidyr::gather(key = "gene", value = "gene_dependency", -dep_map_id) %>%
+    janitor::clean_names() %>%
+    mutate(gene_dependency = as.numeric(gene_dependency),
+           gene = str_extract(gene, "^.+(?=[:space:])"))  %>%
+    left_join(sample_info, by = "dep_map_id")  %>%
+    mutate(tissue = str_remove_all(ccle_name, "\\[MERGED_TO.+\\]")) %>%
+    mutate(tissue = str_split_fixed(tissue, "_", 2)[, 2]) %>%
+    mutate(tissue = ifelse(is.na(ccle_name), "UNKNOWN", tissue)) %T>%
+    write_data("Achilles_gene_dependency.tib")
+
+
+#### ---- CRISPR guides ---- ####
+guide_efficacy <- read_data("Achilles_guide_efficacy.csv") %>%
+    janitor:::clean_names() %>%
+    dplyr::rename(sgrna = "sg_rna")
+guide_map <- read_data("Achilles_guide_map.csv") %>%
+    janitor::clean_names()
+dropped <- read_data("Achilles_dropped_guides.csv") %>%
+    pull(guide) %>%
+    unlist()
+left_join(guide_map, guide_efficacy, by = "sgrna") %>%
+    mutate(dropped = sgrna %in% !!dropped) %>%
+    write_data("Achilles_guides.tib")
+rm(guide_efficacy, guide_map, dropped)
+
+
+#### ---- Achilles Replicates ---- ####
+read_data("Achilles_replicate_map.csv") %>%
+    janitor::clean_names() %>%
+    write_data("Achilles_replicate_map.tib")
+
+
+
+#### ---- Essentiality ---- ####
+agreed_essentials <- read_data("common_essentials.csv") %>%
+    u_pull(gene)
+achilles_essentials <- read_data("Achilles_common_essentials.csv") %>%
+    u_pull(gene)
+nonessentials <- read_data("nonessentials.csv") %>%
+    u_pull(gene)
+
+all_genes <- unlist(c(
+    agreed_essentials, achilles_essentials, achilles_essentials
+))
+
+tibble(gene = unique(all_genes)) %>%
+    mutate(common_essential = gene %in% !!agreed_essentials,
+           achilles_essential  = gene %in% !!achilles_essentials,
+           nonessential = gene %in% !!nonessentials) %>%
+    write_data("gene_essentiality.tib")
