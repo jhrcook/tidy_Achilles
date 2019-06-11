@@ -1,9 +1,11 @@
 data/Achilles_gene_dependency.csv
 data/Achilles_gene_effect.csv
+
 data/CCLE_expression.csv
 data/CCLE_gene_cn.csv
 data/CCLE_mutations.csv
-data/CCLE_RNAseq_reads.csv
+data/cell_line_copy_number.tib
+data/cell_line_gene_expression.tib
 
 README_cache
 README.html
