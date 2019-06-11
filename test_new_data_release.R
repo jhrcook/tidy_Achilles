@@ -51,11 +51,10 @@ a <- read_csv(data_file_path("gene_effect_corrected.csv")) %>%
     verify(has_all_names("x1")) %>%
     slice(5) %>%
     gather(key = "gene", value = "score", -x1) %>%
-    verify(has_all_names("x1", "cell_line", "score")) %>%
+    verify(has_all_names("x1", "gene", "score")) %>%
     verify(is.character(x1)) %>%
-    verify(is.character(cell_line)) %>%
+    verify(is.character(gene)) %>%
     verify(is.numeric(score))
-
 
 
 #### ---- Gene Dependency ---- ####
@@ -68,6 +67,7 @@ a <- read_csv(data_file_path("gene_dependency_corrected.csv")) %>%
     verify(is.character(line)) %>%
     verify(is.character(gene)) %>%
     verify(is.numeric(score))
+
 
 #### ---- Gene Essentiality  ---- ####
 a <- read_tsv(data_file_path("essential_genes.txt")) %>%
