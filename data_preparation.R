@@ -139,14 +139,14 @@ read_data("Achilles_replicate_map.csv") %>%
 
 #### ---- Essentiality ---- ####
 agreed_essentials <- read_data("common_essentials.csv") %>%
-    u_pull(gene)
+    u_pull(gene) %>% unlist()
 achilles_essentials <- read_data("Achilles_common_essentials.csv") %>%
-    u_pull(gene)
+    u_pull(gene) %>% unlist()
 nonessentials <- read_data("nonessentials.csv") %>%
-    u_pull(gene)
+    u_pull(gene) %>% unlist()
 
 all_genes <- unlist(c(
-    agreed_essentials, achilles_essentials, achilles_essentials
+    agreed_essentials, achilles_essentials, nonessentials
 ))
 
 tibble(gene = unique(all_genes)) %>%
