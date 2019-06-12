@@ -5,18 +5,21 @@ output: github_document
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r setup, include = FALSE}
-library(knitr)
-knitr::opts_chunk$set(comment = "#>",
-                      collapse = TRUE,
-                      echo = TRUE,
-                      cache = TRUE)
+knitr::opts_chunk$set(
+    comment = "#>",
+    collapse = TRUE,
+    echo = TRUE,
+    cache = TRUE,
+    cache.lazy = FALSE
+)
 ```
 
-# Tidy Project Achilles Data
+# Tidy Project Achilles Data (tidy_Achilles)
 
-**author: Joshua H. Cook**
+**author: Joshua H. Cook**  
+**last updated: June 12, 2019**
 
-**last updated: March 15, 2019**
+**[GitHub repository](https://github.com/jhrcook/tidy_Achilles)**
 
 This is "tidy" data from the Broad's [Project Achilles](https://depmap.org/portal/achilles/). The data files are in the "data" directory and exaplined below.
 
@@ -41,67 +44,45 @@ The cell line information was obtained from the [Cancer Cell Line Encyclopedia](
 
 ## Raw Data
 
+### Cell Line Data
 
-### DepMap-2019q1-celllines_v2.csv
+The following files contain information about the cell lines in the CCLE. Some, but not all, have been screen by the DepMap Project.
 
-Information on cell lines from the Broad's [Cancer Cell Line Encyclopedia (CCLE)](https://portals.broadinstitute.org/ccle). The tidy data is available in "cell\_line\_metadata.tib".
-
-
-### depmap\_19Q1\_mutation\_calls.csv
-
-Mutation data on the cell lines from the Broad's [Cancer Cell Line Encyclopedia (CCLE)](https://portals.broadinstitute.org/ccle). The tidy data is available in "cell\_line\_mutations.tib".
-
-To access the file, decompress it with a GUI tool (usually double-click on Mac works) or use the command line.
-
-```bash
-gunzip data/depmap_19Q1_mutation_calls.csv.gz
-```
+* sample\_info.csv - information on the cell lines
+* CCLE\_mutations.csv.tar.gz - mutations of the cell lines
+* CCLE\_expression.csv.tar.gz - gene expression of the cell lines (in TPM)
+* CCLE\_gene\_cn.csv.tar.gz - copy number of each gene in the cell lines
 
 
-### D2\_combined\_gene\_dep\_scores.csv
+### Achilles Genetic Dependencies
 
-The "dependency scores" calculated by the Broad's [Achilles Project](https://depmap.org/portal/achilles/), Novartis' project DRIVE, and the Marcotte *et al.* breast cell line dataset. This file is organized by target name in the first column and the following columns are the scores for each cell line. The tidy data is available in "synthetic_lethal.tib".
+The Achilles project used RNAi to deplete each gene in the cell lines, but has since transitioned to a CRISPR loss-of-function screen. That data is available in this repository. The following files hold information on the effect of knocking-out each gene on the survival of the cell line.
 
-These experiments use RNAi to knock-down the expression of the target genes.
-
-To access the file, decompress it with a GUI tool (usually double-click on Mac works) or use the command line.
-
-```bash
-gunzip data/D2_combined_gene_dep_scores.csv.gz
-```
+* Achilles\_gene\_dependency.csv.tar.gz - probability that knocking out the gene has a real depletion effect
+* Achilles\_gene\_effect.csv.tar.gz - CERES data with principle components strongly related to known batch effects removed, then shifted and scaled per cell line so the median nonessential KO effect is 0 and the median essential KO effect is -1
 
 
-### nonessential\_genes.txt and essential\_genes.txt
+### Achilles Guides
 
-Just a list of genes the DepMap project has declared as essential or nonessential in all cell lines. The tidy data is available in "gene_essentiality.tib".
+The Achilles project used RNAi to deplete each gene in the cell lines, but has since transitioned to a CRISPR loss-of-function screen. That data is available in this repository. The following files hold information on the guides used in the CRISPR screen.
 
-
-### public\_19Q1\_gene\_cn.csv
-
-A cell line x gene matrix of copy number calls (they use GATK). The data was broken down by cell line - see below for how to easily load the desired data.
-
-
-### gene\_effect\_corrected.csv
-
-Thie is a cell line x gene matrix of CERES data normalized to positive controls. The "correction" was to remove batch effects. The tidy data is available in "gene\_effect.tib".
-
-```bash
-gunzip data/gene_effect_corrected.csv.gz
-```
+* Achilles\_guide\_efficacy.csv - CERES inferred efficacy for the guide
+* Achilles\_guide\_map.csv - where the guide targets on the genome (including gene name)
+* Achilles\_dropped\_guides.csv - guides that were dropped, usually for likely off-target effects
 
 
-### gene\_dependency\_corrected.csv
+### Achilles misc.
 
-This is a cell line x gene matrix of the probability that knocking out the gene has a real depletion effect. The "correction" was to remove batch effects.
-
-```bash
-gunzip data/gene_dependency_corrected.csv.gz
-```
+* Achilles\_replicate\_map.csv - indicates which processing batch the replicate belongs to and therefore which pDNA reference it should be compared with
 
 
-### guide\_gene\_map.csv
+### Essential Genes
 
-The mapping of each small guide RNA (sgRNA) to its target gene. The tidy data is available in "guide\_gene\_map.tib".
+The data collected from the Achilles project was used to determine which genes were broadly essential.
+
+* common\_essentials.csv - genes used as positive controls, intersection of Biomen (2014) and Hart (2015) essentials; the scores of these genes are used as the dependent distribution for inferring dependency probability
+* Achilles\_common\_essentials.csv - genes identified as dependencies in all lines
+* nonessentials.csv - genes used as negative controls (Hart (2014) nonessentials)
 
 
 ### To be added
@@ -110,13 +91,13 @@ Any others? Open an [issue](https://github.com/jhrcook/tidy_Achilles/issues) for
 
 ---
 
-## Tidy Data Tables
+## Tidy Data
 
-```{r load_libs, message = FALSE, warching = FALSE}
+```{r load_libs, message = FALSE, warning = FALSE}
 library(tidyverse)
 ```
 
-All processing was done in "data_preparation.R". The tidy data were stored as "tibbles" (`tbl_df`, instead of R's standard data.frame object) in RDS files. They can all be read directly into R.
+All processing was done in "data_preparation.R". The tidy data were stored as "tibbles" (`tbl_df` instead of R's standard `data.frame` object) in RDS files. They can all be read directly into R.
 
 ```{r example_readRDS, eval = FALSE}
 library(tibble)
@@ -125,148 +106,122 @@ readRDS("data/example_data_table.tib")
 
 More information in the "tidy data" format can be found in [*R for Data Science - Tidy data*](https://r4ds.had.co.nz/tidy-data.html). 
 
+### Cell Line Data
 
-### cell\_line\_metadata.tib
+#### Meta data
 
-The information for each cell line from the Broad's [Cancer Cell Line Encyclopedia (CCLE)](https://portals.broadinstitute.org/ccle).
+The following data frame holds meta data on the cell lines used in the CRISPR screen (an other cell lines in the CCLE). Use the `dep_map_id` column for unique identification and matching with the data frames included in this repository. The columns `disease` and `disease_sutype` provide information on where the cell line originated.
 
-```{r show_celllinemeta}
-cell_line_metadata <- readRDS(file.path("data", "cell_line_metadata.tib"))
-cell_line_metadata
+```{r show_metadata}
+readRDS(file.path("data", "cell_line_metadata.tib"))
 ```
 
-**DepMap\_ID** - ID for Dependency Map project\
-**CCLE\_Name** - name from the [Cancer Cell Line Encyclopedia (CCLE)](https://portals.broadinstitute.org/ccle)\
-**Aliases** - other names\
-**COSMIC\_ID** - [COSMIC](https://cancer.sanger.ac.uk/cosmic) ID\
-**Sanger\_ID** - Sanger ID\
-**Primary\_Disease** - general disease of the cell line\
-**Subtype\_Disease** - more specific disease of the cell line\
-**Gender** - sex (if known) of the patient\
-**Source** - source of the cell line
+#### Mutations
 
+All of the cell lines in the CCLE have been whole exome sequenced. Their mutations are contained in the following file. Both the Hugo and Entrez gene identifiers are available (`hugo_symbol` and `entrez_gene_id`, respectively). Use the `dep_map_id` column for unique identification and matching with the data frames included in this repository. The specific mutations to the proteins are in the `protein_change` column.
 
-### cell\_line\_mutations.tib
-
-The mutation data for all cell lines in the Broad's [Cancer Cell Line Encyclopedia (CCLE)](https://portals.broadinstitute.org/ccle).
-
-```{r show_cellline_mutations.tib}
-cell_line_mutations <- readRDS(file.path("data", "cell_line_mutations.tib"))
-cell_line_mutations
+```{r show_celllinemutations}
+readRDS(file.path("data", "cell_line_mutations.tib"))
 ```
 
-**Chromosome** - chromosome of the mutation\
-**Start\_position** - start position of the mutation\
-**End\_position** - end position of the mutation\
-**Strand** - which strand the gene is on (transcribed from)\
-**Variant\_Classification** - the consequence of the mutation\
-**Variant\_Type** - shorthand consequence of the mutation (DEL, DNP, INS, ONP, SNP, or TN)\
-**Reference\_Allele** - nucleotide(s) in the reference\
-**Tumor\_Seq\_Allele1** - nucleotide(s) in the sample\
-**dbSNP\_RS**, **dbSNP\_Val\_Status** - the ID association in the dbSNP (if available)\
-**Genome\_Change** - change to the genome\
-**Annotation\_Transcript** - transcript modified by the mutation\
-**Tumor\_Sample\_Barcode** - name of the sample (cell line)\
-**cDNA\_Change** - change to the cDNA\
-**Codon\_Change** - the reference and mutated codon\
-**Protein\_Change** - amino acid change\
-**isDeleterious**, **Variant\_annotation**, **isTCGAhotspot**, **TCGAhsCnt**, **isCOSMIChotspot**, **COSMIChsCnt** - functional annotation\
-**ExAC\_AF**, **VA\_WES\_AC**, **CGA\_WES\_AC**, **SangerWES\_AC**, **SangerRecalibWES\_AC**, **RNAseq\_AC**, **HC\_AC**, **RD\_AC**, **WGS\_AC** -  various accession IDs
+#### Copy Number
 
+Due to size restrictions, the gene copy number data was separated into multiple files by tissue of origin of the cell line. The Hugo gene identifier is available in the `gene` column. Use the `dep_map_id` column for unique identification and matching with the data frames included in this repository. The copy number information is in the `copy_number` column.
 
-### rnai\_synthetic\_lethal (directory)
-
-I had to split up the RNAi synthetic lethal data by tissue so that each data file was small enough to push to GitHub. These are stored in "data/rnai\_synthetic\_lethal/". All or a selection of them can be loaded using `load_rnai_synthetic_lethal`, shown below. It returns a single tibble of the desired tissues' data. The column `score` holds the lethality score that DepMap calculated.
-
-```{r load_snytheticlethal}
-# general function for loadng tissue data from a directory
-load_tissue_data <- function(dir, tissues = "all") {
-    tissues <- paste0(tissues, collapse = "|")
-    tidy_path <- file.path("data", dir)
-    tidy_files <- list.files(tidy_path, full.name = TRUE)
-    if (tissues != "all") {
-        tidy_files <-  stringr::str_subset(tidy_files, tissues)
-    }
-    tidy_tib <- purrr::map(tidy_files, readRDS) %>% bind_rows()
-    return(tidy_tib)
-}
-# specifically for RNAi synthetic lethality
-load_rnai_synthetic_lethal <- function(tissues) {
-    load_tissue_data(dir = "rnai_synthetic_lethal", tissues = tissues)
-}
+```{r show_copynumber}
+readRDS(file.path("data", "copy_number", "PANCREAS_copynum.tib"))
 ```
 
-A specific selection of tissues can be loaded by passing a vector of the tissue names (from the file names). Alternatively, all tissues can be gathered by not passing anything.
+#### Gene Expression
 
-```{r example_fewtissues}
-load_rnai_synthetic_lethal(c("CERVIX", "BONE"))
+Due to size restrictions, the gene expression (in TPM) data was separated into multiple files by tissue of origin of the cell line. The Hugo gene identifier is available in the `gene` column. Use the `dep_map_id` column for unique identification and matching with the data frames included in this repository. The expression values are in the `gene_expression` column.
+
+```{r show_geneexpr}
+readRDS(file.path("data", "gene_expression", "PANCREAS_geneexpr.tib"))
 ```
 
 
-### gene\_effect.tib
+### Achilles
 
- This data is from the CRISPR-based screens. It is stored as a tibble of the CERES- and batch-adjusted essentiality scores for each gene targeted in each cell line. CERES adjusts the depletion score for the copy number of the gene [[PMID: 29083409](https://www.nature.com/articles/ng.3984)].
+A cell line is dependent on a gene if the deletion of the gene causes a decrease in vitality of the cell line. The Achilles project is using a genome-wide CRISPR-Cas9 loss-of-function screen to test hundreds of cell line's dependencies.
 
-```{r show_geneeffect}
-readRDS(file.path("data", "gene_effect.tib"))
+The `Achilles_gene_dependency.tib` contains the probability that knocking out the gene has a real depletion effect. The Hugo gene identifier is available in the `gene` column. Use the `dep_map_id` column for unique identification and matching with the data frames included in this repository. The dependency score is in the `gene_dependency` column. This file includes the CCLE sample information, too.
+
+```{r show_achillesdep}
+readRDS(file.path("data", "Achilles_gene_dependency.tib"))
 ```
 
-
-### gene\_dependency.tib
-
-This data is from the CRISPR-based screens. It is stored as a tibble with scores for the probability that knocking out the gene has a real depletion effect (corrected for batch effects).
-
-```{r show_genedepend}
-readRDS(file.path("data", "gene_dependency.tib"))
+```{r hist_achillesdep, echo = FALSE, warning = FALSE, message = FALSE}
+dat <- readRDS(file.path("data", "Achilles_gene_dependency.tib"))
+dat %>%
+    mutate(tissue = str_to_lower(str_replace_all(tissue, "_", " "))) %>%
+    ggplot(aes(x = tissue, y = -log10(gene_dependency))) +
+    geom_boxplot(aes(fill = tissue),
+                 outlier.size = 0.7, outlier.color = "grey40") +
+    theme_minimal() +
+    theme(
+        axis.text.x = element_text(angle = 60, size = 6, hjust = 1)
+    ) +
+    scale_fill_hue(guide = FALSE)
 ```
 
+The depletion effect of targeting each gene is in `Achilles_gene_effect.tib`. This contains CERES data with principle components strongly related to known batch effects removed, then shifted and scaled per cell line so the median nonessential knock-out effect is 0 and the median essential knock-out effect is -1. The gene effect values are in the `gene_effect` column.
 
-### gene\_essentiality.tib
+```{r show_achilleseffect}
+readRDS(file.path("data", "Achilles_gene_effect.tib"))
+```
 
-A two column tibble of what the DepMap project deems essential or not essential in all cell lines.
+```{r hist_achilleseffect, echo = FALSE, warning = FALSE, message = FALSE}
+dat <- readRDS(file.path("data", "Achilles_gene_effect.tib"))
+dat %>%
+    mutate(tissue = str_to_lower(str_replace_all(tissue, "_", " "))) %>%
+    ggplot(aes(x = tissue, y = gene_effect)) +
+    geom_violin(aes(fill = tissue)) +
+    geom_hline(yintercept = 0, size = 0.8, color = "grey25", linetype = 2) +
+    theme_minimal() +
+    theme(
+        axis.text.x = element_text(angle = 60, size = 6, hjust = 1)
+    ) +
+    scale_fill_hue(guide = FALSE)
+```
 
-```{r sow_essential}
+The DepMap released information on the guides they used including, mapping information, efficacy, and those that they removed (for various reasons, though likely for off-target effects). These data were collated into one data frame.
+
+```{r show_guidedata}
+readRDS(file.path("data", "Achilles_guides.tib"))
+```
+
+The DepMap project released a file containing which batch each sample (cell line) was processed in. Note, the scores in `Achilles_gene_effect.tib` have already been corrected for batch effects.
+
+```{r show_batches}
+readRDS(file.path("data", "Achilles_replicate_map.tib"))
+```
+
+Finally, the DepMap created three lists of genes according tho their essentialiaty. Those were merged into one data frame, here. The `common_essential` column indicates which genes were previously known to be essential in all cells, while the `achilles_essential` column indicates which genes were found to be pan-essential during the Achilles screen. The `nonessential` column indicates which genes are universally non-essential
+
+```{r show_essentials}
 readRDS(file.path("data", "gene_essentiality.tib"))
 ```
 
+The following Venn diagram shows the overlap of these three groups.
 
-### copy\_number (directory)
-
-The full tibble was too large to push to GitHub (and probably to warrant loading every time), so I separated it by primary disease and stored each as a tibble in "data/copy_number". Again, I supply a function below to retrieve each one or all (default) tissues.
-
-```{r load_celllinecopynum}
-load_copy_number <- function(tissues = "all") {
-    load_tissue_data(dir = "copy_number", tissues = tissues)
-}
+```{r venn_essentials, echo = FALSE, warning = FALSE, message = FALSE}
+library(VennDiagram)
+dat <- readRDS(file.path("data", "gene_essentiality.tib"))
+known_essentials <- filter(dat, common_essential) %>% pull(gene) %>% unlist() %>% unique()
+achilles_essentials <- filter(dat, achilles_essential) %>% pull(gene) %>% unlist() %>% unique()
+nonessentials <- filter(dat, nonessential) %>% pull(gene) %>% unlist() %>% unique()
+venn_plot <- venn.diagram(
+    x = list(known_essentials, achilles_essentials, nonessentials),
+    category.names = c(
+        "known essentials", "Achilles essentials", "non-essentials"
+    ),
+    filename = NULL,
+    fill = c('dodgerblue', 'tomato', 'mediumseagreen')
+)
+grid.newpage()
+grid.draw(venn_plot)
 ```
-
-Here is an example.
-
-```{r show_celllinecopynum}
-load_copy_number(c("CERVIX", "BONE"))
-```
-
-
-### guide\_gene\_map.tib
-
-The mapping of each small guide RNA (sgRNA) to its target gene.
-
-```{r show_guidegenemap}
-readRDS(file.path("data", "guide_gene_map.tib"))
-```
-
-
----
-
-## Comparing RNAi vs. CRISPR screens
-
-Below is a plot of all the data points where both RNAi and CRISPR screen scores are available for a cell line and gene.
-
-![all_points](images/diff_RNAi_CRISPR_individual.png)
-
-Below is a plot of all the data points where both RNAi and CRISPR screen scores are available for a disease and gene, with each score being average across the cell lines.
-
-![disease_avg](images/diff_RNAi_CRISPR_avg.png)
 
 ---
 

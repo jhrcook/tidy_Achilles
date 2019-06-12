@@ -1,11 +1,12 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# Tidy Project Achilles Data
+# Tidy Project Achilles Data (tidy\_Achilles)
 
-**author: Joshua H. Cook**
+**author: Joshua H. Cook**  
+**last updated: June 12, 2019**
 
-**last updated: March 15, 2019**
+**[GitHub repository](https://github.com/jhrcook/tidy_Achilles)**
 
 This is “tidy” data from the Broad’s [Project
 Achilles](https://depmap.org/portal/achilles/). The data files are in
@@ -40,80 +41,66 @@ to this repo, please open a GitHub
 
 ## Raw Data
 
-### DepMap-2019q1-celllines\_v2.csv
+### Cell Line Data
 
-Information on cell lines from the Broad’s [Cancer Cell Line
-Encyclopedia (CCLE)](https://portals.broadinstitute.org/ccle). The tidy
-data is available in “cell\_line\_metadata.tib”.
+The following files contain information about the cell lines in the
+CCLE. Some, but not all, have been screen by the DepMap Project.
 
-### depmap\_19Q1\_mutation\_calls.csv
+  - sample\_info.csv - information on the cell lines
+  - CCLE\_mutations.csv.tar.gz - mutations of the cell lines
+  - CCLE\_expression.csv.tar.gz - gene expression of the cell lines (in
+    TPM)
+  - CCLE\_gene\_cn.csv.tar.gz - copy number of each gene in the cell
+    lines
 
-Mutation data on the cell lines from the Broad’s [Cancer Cell Line
-Encyclopedia (CCLE)](https://portals.broadinstitute.org/ccle). The tidy
-data is available in “cell\_line\_mutations.tib”.
+### Achilles Genetic Dependencies
 
-To access the file, decompress it with a GUI tool (usually double-click
-on Mac works) or use the command line.
+The Achilles project used RNAi to deplete each gene in the cell lines,
+but has since transitioned to a CRISPR loss-of-function screen. That
+data is available in this repository. The following files hold
+information on the effect of knocking-out each gene on the survival of
+the cell line.
 
-``` bash
-gunzip data/depmap_19Q1_mutation_calls.csv.gz
-```
+  - Achilles\_gene\_dependency.csv.tar.gz - probability that knocking
+    out the gene has a real depletion effect
+  - Achilles\_gene\_effect.csv.tar.gz - CERES data with principle
+    components strongly related to known batch effects removed, then
+    shifted and scaled per cell line so the median nonessential KO
+    effect is 0 and the median essential KO effect is -1
 
-### D2\_combined\_gene\_dep\_scores.csv
+### Achilles Guides
 
-The “dependency scores” calculated by the Broad’s [Achilles
-Project](https://depmap.org/portal/achilles/), Novartis’ project DRIVE,
-and the Marcotte *et al.* breast cell line dataset. This file is
-organized by target name in the first column and the following columns
-are the scores for each cell line. The tidy data is available in
-“synthetic\_lethal.tib”.
+The Achilles project used RNAi to deplete each gene in the cell lines,
+but has since transitioned to a CRISPR loss-of-function screen. That
+data is available in this repository. The following files hold
+information on the guides used in the CRISPR screen.
 
-These experiments use RNAi to knock-down the expression of the target
-genes.
+  - Achilles\_guide\_efficacy.csv - CERES inferred efficacy for the
+    guide
+  - Achilles\_guide\_map.csv - where the guide targets on the genome
+    (including gene name)
+  - Achilles\_dropped\_guides.csv - guides that were dropped, usually
+    for likely off-target effects
 
-To access the file, decompress it with a GUI tool (usually double-click
-on Mac works) or use the command line.
+### Achilles misc.
 
-``` bash
-gunzip data/D2_combined_gene_dep_scores.csv.gz
-```
+  - Achilles\_replicate\_map.csv - indicates which processing batch the
+    replicate belongs to and therefore which pDNA reference it should be
+    compared with
 
-### nonessential\_genes.txt and essential\_genes.txt
+### Essential Genes
 
-Just a list of genes the DepMap project has declared as essential or
-nonessential in all cell lines. The tidy data is available in
-“gene\_essentiality.tib”.
+The data collected from the Achilles project was used to determine which
+genes were broadly essential.
 
-### public\_19Q1\_gene\_cn.csv
-
-A cell line x gene matrix of copy number calls (they use GATK). The data
-was broken down by cell line - see below for how to easily load the
-desired data.
-
-### gene\_effect\_corrected.csv
-
-Thie is a cell line x gene matrix of CERES data normalized to positive
-controls. The “correction” was to remove batch effects. The tidy data is
-available in “gene\_effect.tib”.
-
-``` bash
-gunzip data/gene_effect_corrected.csv.gz
-```
-
-### gene\_dependency\_corrected.csv
-
-This is a cell line x gene matrix of the probability that knocking out
-the gene has a real depletion effect. The “correction” was to remove
-batch effects.
-
-``` bash
-gunzip data/gene_dependency_corrected.csv.gz
-```
-
-### guide\_gene\_map.csv
-
-The mapping of each small guide RNA (sgRNA) to its target gene. The tidy
-data is available in “guide\_gene\_map.tib”.
+  - common\_essentials.csv - genes used as positive controls,
+    intersection of Biomen (2014) and Hart (2015) essentials; the scores
+    of these genes are used as the dependent distribution for inferring
+    dependency probability
+  - Achilles\_common\_essentials.csv - genes identified as dependencies
+    in all lines
+  - nonessentials.csv - genes used as negative controls (Hart (2014)
+    nonessentials)
 
 ### To be added
 
@@ -123,14 +110,14 @@ requested data to include.
 
 -----
 
-## Tidy Data Tables
+## Tidy Data
 
 ``` r
 library(tidyverse)
 ```
 
 All processing was done in “data\_preparation.R”. The tidy data were
-stored as “tibbles” (`tbl_df`, instead of R’s standard data.frame
+stored as “tibbles” (`tbl_df` instead of R’s standard `data.frame`
 object) in RDS files. They can all be read directly into R.
 
 ``` r
@@ -141,54 +128,50 @@ readRDS("data/example_data_table.tib")
 More information in the “tidy data” format can be found in [*R for Data
 Science - Tidy data*](https://r4ds.had.co.nz/tidy-data.html).
 
-### cell\_line\_metadata.tib
+### Cell Line Data
 
-The information for each cell line from the Broad’s [Cancer Cell Line
-Encyclopedia
-(CCLE)](https://portals.broadinstitute.org/ccle).
+#### Meta data
+
+The following data frame holds meta data on the cell lines used in the
+CRISPR screen (an other cell lines in the CCLE). Use the `dep_map_id`
+column for unique identification and matching with the data frames
+included in this repository. The columns `disease` and `disease_sutype`
+provide information on where the cell line originated.
 
 ``` r
-cell_line_metadata <- readRDS(file.path("data", "cell_line_metadata.tib"))
-cell_line_metadata
-#> # A tibble: 1,676 x 9
-#>    DepMap_ID CCLE_Name Aliases COSMIC_ID Sanger_ID Primary_Disease
-#>    <chr>     <chr>     <chr>       <dbl>     <dbl> <chr>          
-#>  1 ACH-0000… NIHOVCAR… NIH:OV…    905933      2201 Ovarian Cancer 
-#>  2 ACH-0000… HL60_HAE… HL-60      905938        55 Leukemia       
-#>  3 ACH-0000… CACO2_LA… CACO2;…        NA        NA Colon/Colorect…
-#>  4 ACH-0000… HEL_HAEM… HEL        907053       783 Leukemia       
-#>  5 ACH-0000… HEL9217_… HEL 92…        NA        NA Leukemia       
-#>  6 ACH-0000… MONOMAC6… MONO-M…    908148      2167 Leukemia       
-#>  7 ACH-0000… LS513_LA… LS513      907795       569 Colon/Colorect…
-#>  8 ACH-0000… C2BBE1_L… C2BBe1     910700      2104 Colon/Colorect…
-#>  9 ACH-0000… NCIH2077… NCI-H2…        NA        NA Lung Cancer    
-#> 10 ACH-0000… 253J_URI… 253J           NA        NA Bladder Cancer 
-#> # … with 1,666 more rows, and 3 more variables: Subtype_Disease <chr>,
-#> #   Gender <chr>, Source <chr>
+readRDS(file.path("data", "cell_line_metadata.tib"))
+#> # A tibble: 1,714 x 16
+#>    dep_map_id stripped_cell_l… ccle_name alias cosmic_id sanger_id disease
+#>    <chr>      <chr>            <chr>     <chr>     <dbl>     <dbl> <chr>  
+#>  1 ACH-000001 NIHOVCAR3        NIHOVCAR… OVCA…    905933      2201 ovary  
+#>  2 ACH-000002 HL60             HL60_HAE… <NA>     905938        55 leukem…
+#>  3 ACH-000003 CACO2            CACO2_LA… CACO…        NA        NA colore…
+#>  4 ACH-000004 HEL              HEL_HAEM… <NA>     907053       783 leukem…
+#>  5 ACH-000005 HEL9217          HEL9217_… <NA>         NA        NA leukem…
+#>  6 ACH-000006 MONOMAC6         MONOMAC6… <NA>     908148      2167 leukem…
+#>  7 ACH-000007 LS513            LS513_LA… <NA>     907795       569 colore…
+#>  8 ACH-000008 A101D            A101D_SK… <NA>     910921      1806 <NA>   
+#>  9 ACH-000009 C2BBE1           C2BBE1_L… <NA>     910700      2104 colore…
+#> 10 ACH-000010 NCIH2077         NCIH2077… NCI-…        NA        NA lung   
+#> # … with 1,704 more rows, and 9 more variables: disease_sutype <chr>,
+#> #   disease_sub_subtype <chr>, gender <chr>, source <chr>,
+#> #   achilles_n_replicates <dbl>, cell_line_nnmd <dbl>, culture_type <chr>,
+#> #   culture_medium <chr>, cas9_activity <chr>
 ```
 
-**DepMap\_ID** - ID for Dependency Map project  
-**CCLE\_Name** - name from the [Cancer Cell Line Encyclopedia
-(CCLE)](https://portals.broadinstitute.org/ccle)  
-**Aliases** - other names  
-**COSMIC\_ID** - [COSMIC](https://cancer.sanger.ac.uk/cosmic) ID  
-**Sanger\_ID** - Sanger ID  
-**Primary\_Disease** - general disease of the cell line  
-**Subtype\_Disease** - more specific disease of the cell line  
-**Gender** - sex (if known) of the patient  
-**Source** - source of the cell line
+#### Mutations
 
-### cell\_line\_mutations.tib
-
-The mutation data for all cell lines in the Broad’s [Cancer Cell Line
-Encyclopedia
-(CCLE)](https://portals.broadinstitute.org/ccle).
+All of the cell lines in the CCLE have been whole exome sequenced. Their
+mutations are contained in the following file. Both the Hugo and Entrez
+gene identifiers are available (`hugo_symbol` and `entrez_gene_id`,
+respectively). Use the `dep_map_id` column for unique identification and
+matching with the data frames included in this repository. The specific
+mutations to the proteins are in the `protein_change` column.
 
 ``` r
-cell_line_mutations <- readRDS(file.path("data", "cell_line_mutations.tib"))
-cell_line_mutations
-#> # A tibble: 1,243,145 x 35
-#>    Hugo_Symbol Entrez_Gene_Id NCBI_Build Chromosome Start_position
+readRDS(file.path("data", "cell_line_mutations.tib"))
+#> # A tibble: 1,227,713 x 34
+#>    hugo_symbol entrez_gene_id ncbi_build chromosome start_position
 #>    <chr>                <dbl>      <dbl> <chr>               <dbl>
 #>  1 VPS13D               55187         37 1                12359347
 #>  2 AADACL4             343066         37 1                12726308
@@ -200,240 +183,226 @@ cell_line_mutations
 #>  8 GBP4                115361         37 1                89657103
 #>  9 VAV3                 10451         37 1               108247170
 #> 10 NBPF20           100288142         37 1               148346689
-#> # … with 1,243,135 more rows, and 30 more variables: End_position <dbl>,
-#> #   Strand <chr>, Variant_Classification <chr>, Variant_Type <chr>,
-#> #   Reference_Allele <chr>, Tumor_Seq_Allele1 <chr>, dbSNP_RS <chr>,
-#> #   dbSNP_Val_Status <chr>, Genome_Change <chr>,
-#> #   Annotation_Transcript <chr>, Tumor_Sample_Barcode <chr>,
-#> #   cDNA_Change <chr>, Codon_Change <chr>, Protein_Change <chr>,
-#> #   isDeleterious <lgl>, isTCGAhotspot <lgl>, TCGAhsCnt <dbl>,
-#> #   isCOSMIChotspot <lgl>, COSMIChsCnt <dbl>, ExAC_AF <dbl>,
-#> #   VA_WES_AC <chr>, CGA_WES_AC <chr>, SangerWES_AC <chr>,
-#> #   SangerRecalibWES_AC <chr>, RNAseq_AC <chr>, HC_AC <chr>, RD_AC <chr>,
-#> #   WGS_AC <chr>, Variant_annotation <chr>, DepMap_ID <chr>
+#> # … with 1,227,703 more rows, and 29 more variables: end_position <dbl>,
+#> #   strand <chr>, variant_classification <chr>, variant_type <chr>,
+#> #   reference_allele <chr>, tumor_seq_allele1 <chr>, db_snp_rs <chr>,
+#> #   db_snp_val_status <chr>, genome_change <chr>,
+#> #   annotation_transcript <chr>, tumor_sample_barcode <chr>,
+#> #   c_dna_change <chr>, codon_change <chr>, protein_change <chr>,
+#> #   is_deleterious <lgl>, is_tcg_ahotspot <lgl>, tcg_ahs_cnt <dbl>,
+#> #   is_cosmi_chotspot <lgl>, cosmi_chs_cnt <dbl>, ex_ac_af <dbl>,
+#> #   cga_wes_ac <chr>, sanger_wes_ac <chr>, sanger_recalib_wes_ac <chr>,
+#> #   rn_aseq_ac <chr>, hc_ac <chr>, rd_ac <chr>, wgs_ac <chr>,
+#> #   variant_annotation <chr>, dep_map_id <chr>
 ```
 
-**Chromosome** - chromosome of the mutation  
-**Start\_position** - start position of the mutation  
-**End\_position** - end position of the mutation  
-**Strand** - which strand the gene is on (transcribed from)  
-**Variant\_Classification** - the consequence of the mutation  
-**Variant\_Type** - shorthand consequence of the mutation (DEL, DNP,
-INS, ONP, SNP, or TN)  
-**Reference\_Allele** - nucleotide(s) in the reference  
-**Tumor\_Seq\_Allele1** - nucleotide(s) in the sample  
-**dbSNP\_RS**, **dbSNP\_Val\_Status** - the ID association in the dbSNP
-(if available)  
-**Genome\_Change** - change to the genome  
-**Annotation\_Transcript** - transcript modified by the mutation  
-**Tumor\_Sample\_Barcode** - name of the sample (cell line)  
-**cDNA\_Change** - change to the cDNA  
-**Codon\_Change** - the reference and mutated codon  
-**Protein\_Change** - amino acid change  
-**isDeleterious**, **Variant\_annotation**, **isTCGAhotspot**,
-**TCGAhsCnt**, **isCOSMIChotspot**, **COSMIChsCnt** - functional
-annotation  
-**ExAC\_AF**, **VA\_WES\_AC**, **CGA\_WES\_AC**, **SangerWES\_AC**,
-**SangerRecalibWES\_AC**, **RNAseq\_AC**, **HC\_AC**, **RD\_AC**,
-**WGS\_AC** - various accession IDs
+#### Copy Number
 
-### rnai\_synthetic\_lethal (directory)
-
-I had to split up the RNAi synthetic lethal data by tissue so that each
-data file was small enough to push to GitHub. These are stored in
-“data/rnai\_synthetic\_lethal/”. All or a selection of them can be
-loaded using `load_rnai_synthetic_lethal`, shown below. It returns a
-single tibble of the desired tissues’ data. The column `score` holds the
-lethality score that DepMap calculated.
+Due to size restrictions, the gene copy number data was separated into
+multiple files by tissue of origin of the cell line. The Hugo gene
+identifier is available in the `gene` column. Use the `dep_map_id`
+column for unique identification and matching with the data frames
+included in this repository. The copy number information is in the
+`copy_number` column.
 
 ``` r
-# general function for loadng tissue data from a directory
-load_tissue_data <- function(dir, tissues = "all") {
-    tissues <- paste0(tissues, collapse = "|")
-    tidy_path <- file.path("data", dir)
-    tidy_files <- list.files(tidy_path, full.name = TRUE)
-    if (tissues != "all") {
-        tidy_files <-  stringr::str_subset(tidy_files, tissues)
-    }
-    tidy_tib <- purrr::map(tidy_files, readRDS) %>% bind_rows()
-    return(tidy_tib)
-}
-# specifically for RNAi synthetic lethality
-load_rnai_synthetic_lethal <- function(tissues) {
-    load_tissue_data(dir = "rnai_synthetic_lethal", tissues = tissues)
-}
+readRDS(file.path("data", "copy_number", "PANCREAS_copynum.tib"))
+#> # A tibble: 1,304,744 x 19
+#>    dep_map_id gene  copy_number stripped_cell_l… ccle_name alias cosmic_id
+#>    <chr>      <chr>       <dbl> <chr>            <chr>     <chr>     <dbl>
+#>  1 ACH-000178 A1BG        0.877 HS766T           HS766T_P… <NA>    1298141
+#>  2 ACH-000281 A1BG        0.944 KP2              KP2_PANC… <NA>    1298218
+#>  3 ACH-000685 A1BG        1.20  L33              L33_PANC… <NA>         NA
+#>  4 ACH-000042 A1BG        1.33  PANC0203         PANC0203… <NA>    1298475
+#>  5 ACH-000031 A1BG        0.874 PANC0213         PANC0213… <NA>         NA
+#>  6 ACH-000235 A1BG        0.832 PANC0403         PANC0403… <NA>    1298476
+#>  7 ACH-000093 A1BG        1.03  PANC0504         PANC0504… <NA>         NA
+#>  8 ACH-000599 A1BG        0.791 PATU8902         PATU8902… <NA>    1298526
+#>  9 ACH-000307 A1BG        1.07  PK1              PK1_PANC… <NA>         NA
+#> 10 ACH-000205 A1BG        1.42  PK59             PK59_PAN… <NA>         NA
+#> # … with 1,304,734 more rows, and 12 more variables: sanger_id <dbl>,
+#> #   disease <chr>, disease_sutype <chr>, disease_sub_subtype <chr>,
+#> #   gender <chr>, source <chr>, achilles_n_replicates <dbl>,
+#> #   cell_line_nnmd <dbl>, culture_type <chr>, culture_medium <chr>,
+#> #   cas9_activity <chr>, tissue <chr>
 ```
 
-A specific selection of tissues can be loaded by passing a vector of the
-tissue names (from the file names). Alternatively, all tissues can be
-gathered by not passing anything.
+#### Gene Expression
+
+Due to size restrictions, the gene expression (in TPM) data was
+separated into multiple files by tissue of origin of the cell line. The
+Hugo gene identifier is available in the `gene` column. Use the
+`dep_map_id` column for unique identification and matching with the data
+frames included in this repository. The expression values are in the
+`gene_expression` column.
 
 ``` r
-load_rnai_synthetic_lethal(c("CERVIX", "BONE"))
-#> # A tibble: 328,871 x 16
-#>    gene  Entrez cell_line    score DepMap_ID Aliases COSMIC_ID Sanger_ID
-#>    <chr> <chr>  <chr>        <dbl> <chr>     <chr>       <dbl>     <dbl>
-#>  1 A1BG  1      143B_BONE  0.146   ACH-0010… <NA>           NA        NA
-#>  2 NAT2  10     143B_BONE  0.103   ACH-0010… <NA>           NA        NA
-#>  3 ADA   100    143B_BONE  0.169   ACH-0010… <NA>           NA        NA
-#>  4 CDH2  1000   143B_BONE  0.0630  ACH-0010… <NA>           NA        NA
-#>  5 AKT3  10000  143B_BONE -0.00808 ACH-0010… <NA>           NA        NA
-#>  6 MED6  10001  143B_BONE -0.214   ACH-0010… <NA>           NA        NA
-#>  7 NR2E3 10002  143B_BONE -0.154   ACH-0010… <NA>           NA        NA
-#>  8 NAAL… 10003  143B_BONE  0.134   ACH-0010… <NA>           NA        NA
-#>  9 DUXB  10003… 143B_BONE  0.139   ACH-0010… <NA>           NA        NA
-#> 10 PDZK… 10003… 143B_BONE  0.0303  ACH-0010… <NA>           NA        NA
-#> # … with 328,861 more rows, and 8 more variables: Primary_Disease <chr>,
-#> #   Subtype_Disease <chr>, Gender <chr>, Source <chr>, ras <chr>,
-#> #   allele <chr>, ras_allele <chr>, tissue <chr>
+readRDS(file.path("data", "gene_expression", "PANCREAS_geneexpr.tib"))
+#> # A tibble: 876,757 x 19
+#>    dep_map_id gene  gene_expression stripped_cell_l… ccle_name alias
+#>    <chr>      <chr>           <dbl> <chr>            <chr>     <chr>
+#>  1 ACH-000222 TSPA…            5.97 ASPC1            ASPC1_PA… <NA> 
+#>  2 ACH-000535 TSPA…            5.89 BXPC3            BXPC3_PA… <NA> 
+#>  3 ACH-000354 TSPA…            4.53 CAPAN1           CAPAN1_P… <NA> 
+#>  4 ACH-000107 TSPA…            5.21 CAPAN2           CAPAN2_P… <NA> 
+#>  5 ACH-000138 TSPA…            5.23 CFPAC1           CFPAC1_P… <NA> 
+#>  6 ACH-000243 TSPA…            4.79 DANG             DANG_PAN… <NA> 
+#>  7 ACH-000270 TSPA…            4.85 HPAC             HPAC_PAN… <NA> 
+#>  8 ACH-000094 TSPA…            6.23 HPAFII           HPAFII_P… <NA> 
+#>  9 ACH-000178 TSPA…            5.79 HS766T           HS766T_P… <NA> 
+#> 10 ACH-000118 TSPA…            4.47 HUPT3            HUPT3_PA… <NA> 
+#> # … with 876,747 more rows, and 13 more variables: cosmic_id <dbl>,
+#> #   sanger_id <dbl>, disease <chr>, disease_sutype <chr>,
+#> #   disease_sub_subtype <chr>, gender <chr>, source <chr>,
+#> #   achilles_n_replicates <dbl>, cell_line_nnmd <dbl>, culture_type <chr>,
+#> #   culture_medium <chr>, cas9_activity <chr>, tissue <chr>
 ```
 
-### gene\_effect.tib
+### Achilles
 
-This data is from the CRISPR-based screens. It is stored as a tibble of
-the CERES- and batch-adjusted essentiality scores for each gene targeted
-in each cell line. CERES adjusts the depletion score for the copy number
-of the gene
-\[[PMID: 29083409](https://www.nature.com/articles/ng.3984)\].
+A cell line is dependent on a gene if the deletion of the gene causes a
+decrease in vitality of the cell line. The Achilles project is using a
+genome-wide CRISPR-Cas9 loss-of-function screen to test hundreds of cell
+line’s dependencies.
+
+The `Achilles_gene_dependency.tib` contains the probability that
+knocking out the gene has a real depletion effect. The Hugo gene
+identifier is available in the `gene` column. Use the `dep_map_id`
+column for unique identification and matching with the data frames
+included in this repository. The dependency score is in the
+`gene_dependency` column. This file includes the CCLE sample
+information, too.
 
 ``` r
-readRDS(file.path("data", "gene_effect.tib"))
-#> # A tibble: 9,839,772 x 12
-#>    DepMap_ID gene  CERES_score Entrez CCLE_Name Aliases COSMIC_ID Sanger_ID
-#>    <chr>     <chr>       <dbl> <chr>  <chr>     <chr>       <dbl>     <dbl>
-#>  1 ACH-0000… A1BG       0.135  1      HEL_HAEM… HEL        907053       783
-#>  2 ACH-0000… A1BG      -0.212  1      HEL9217_… HEL 92…        NA        NA
-#>  3 ACH-0000… A1BG       0.0433 1      LS513_LA… LS513      907795       569
-#>  4 ACH-0000… A1BG       0.0705 1      C2BBE1_L… C2BBe1     910700      2104
-#>  5 ACH-0000… A1BG       0.191  1      253J_URI… 253J           NA        NA
-#>  6 ACH-0000… A1BG      -0.0104 1      HCC827_L… HCC827    1240146       354
-#>  7 ACH-0000… A1BG       0.0210 1      ONCODG1_… ONCO-D…        NA        NA
-#>  8 ACH-0000… A1BG       0.113  1      HS294T_S… Hs 294…        NA        NA
-#>  9 ACH-0000… A1BG      -0.0742 1      NCIH1581… NCI-H1…    908471      1237
-#> 10 ACH-0000… A1BG       0.133  1      SKBR3_BR… SK-BR-3        NA        NA
-#> # … with 9,839,762 more rows, and 4 more variables: Primary_Disease <chr>,
-#> #   Subtype_Disease <chr>, Gender <chr>, Source <chr>
+readRDS(file.path("data", "Achilles_gene_dependency.tib"))
+#> # A tibble: 9,927,942 x 19
+#>    dep_map_id gene  gene_dependency stripped_cell_l… ccle_name alias
+#>    <chr>      <chr>           <dbl> <chr>            <chr>     <chr>
+#>  1 ACH-000004 A1BG         0.00160  HEL              HEL_HAEM… <NA> 
+#>  2 ACH-000007 A1BG         0.00362  LS513            LS513_LA… <NA> 
+#>  3 ACH-000009 A1BG         0.00348  C2BBE1           C2BBE1_L… <NA> 
+#>  4 ACH-000011 A1BG         0.000310 253J             253J_URI… <NA> 
+#>  5 ACH-000012 A1BG         0.00789  HCC827           HCC827_L… <NA> 
+#>  6 ACH-000013 A1BG         0.00685  ONCODG1          ONCODG1_… <NA> 
+#>  7 ACH-000014 A1BG         0.00101  HS294T           HS294T_S… A101…
+#>  8 ACH-000015 A1BG         0.0216   NCIH1581         NCIH1581… NCI-…
+#>  9 ACH-000017 A1BG         0.00112  SKBR3            SKBR3_BR… <NA> 
+#> 10 ACH-000018 A1BG         0.00977  T24              T24_URIN… <NA> 
+#> # … with 9,927,932 more rows, and 13 more variables: cosmic_id <dbl>,
+#> #   sanger_id <dbl>, disease <chr>, disease_sutype <chr>,
+#> #   disease_sub_subtype <chr>, gender <chr>, source <chr>,
+#> #   achilles_n_replicates <dbl>, cell_line_nnmd <dbl>, culture_type <chr>,
+#> #   culture_medium <chr>, cas9_activity <chr>, tissue <chr>
 ```
 
-### gene\_dependency.tib
+![](README_files/figure-gfm/hist_achillesdep-1.png)<!-- -->
 
-This data is from the CRISPR-based screens. It is stored as a tibble
-with scores for the probability that knocking out the gene has a real
-depletion effect (corrected for batch effects).
+The depletion effect of targeting each gene is in
+`Achilles_gene_effect.tib`. This contains CERES data with principle
+components strongly related to known batch effects removed, then shifted
+and scaled per cell line so the median nonessential knock-out effect is
+0 and the median essential knock-out effect is -1. The gene effect
+values are in the `gene_effect` column.
 
 ``` r
-readRDS(file.path("data", "gene_dependency.tib"))
-#> # A tibble: 9,839,772 x 12
-#>    DepMap_ID gene  dependency_score Entrez CCLE_Name Aliases COSMIC_ID
-#>    <chr>     <chr>            <dbl> <chr>  <chr>     <chr>       <dbl>
-#>  1 ACH-0000… A1BG           0.00247 1      HEL_HAEM… HEL        907053
-#>  2 ACH-0000… A1BG           0.107   1      HEL9217_… HEL 92…        NA
-#>  3 ACH-0000… A1BG           0.00800 1      LS513_LA… LS513      907795
-#>  4 ACH-0000… A1BG           0.00548 1      C2BBE1_L… C2BBe1     910700
-#>  5 ACH-0000… A1BG           0.00143 1      253J_URI… 253J           NA
-#>  6 ACH-0000… A1BG           0.0162  1      HCC827_L… HCC827    1240146
-#>  7 ACH-0000… A1BG           0.0134  1      ONCODG1_… ONCO-D…        NA
-#>  8 ACH-0000… A1BG           0.00277 1      HS294T_S… Hs 294…        NA
-#>  9 ACH-0000… A1BG           0.0424  1      NCIH1581… NCI-H1…    908471
-#> 10 ACH-0000… A1BG           0.00293 1      SKBR3_BR… SK-BR-3        NA
-#> # … with 9,839,762 more rows, and 5 more variables: Sanger_ID <dbl>,
-#> #   Primary_Disease <chr>, Subtype_Disease <chr>, Gender <chr>,
-#> #   Source <chr>
+readRDS(file.path("data", "Achilles_gene_effect.tib"))
+#> # A tibble: 9,927,942 x 19
+#>    dep_map_id gene  gene_effect stripped_cell_l… ccle_name alias cosmic_id
+#>    <chr>      <chr>       <dbl> <chr>            <chr>     <chr>     <dbl>
+#>  1 ACH-000004 A1BG      0.158   HEL              HEL_HAEM… <NA>     907053
+#>  2 ACH-000007 A1BG      0.0674  LS513            LS513_LA… <NA>     907795
+#>  3 ACH-000009 A1BG      0.0512  C2BBE1           C2BBE1_L… <NA>     910700
+#>  4 ACH-000011 A1BG      0.270   253J             253J_URI… <NA>         NA
+#>  5 ACH-000012 A1BG     -0.00426 HCC827           HCC827_L… <NA>    1240146
+#>  6 ACH-000013 A1BG      0.0409  ONCODG1          ONCODG1_… <NA>         NA
+#>  7 ACH-000014 A1BG      0.150   HS294T           HS294T_S… A101…        NA
+#>  8 ACH-000015 A1BG     -0.0753  NCIH1581         NCIH1581… NCI-…    908471
+#>  9 ACH-000017 A1BG      0.167   SKBR3            SKBR3_BR… <NA>         NA
+#> 10 ACH-000018 A1BG     -0.0244  T24              T24_URIN… <NA>     724812
+#> # … with 9,927,932 more rows, and 12 more variables: sanger_id <dbl>,
+#> #   disease <chr>, disease_sutype <chr>, disease_sub_subtype <chr>,
+#> #   gender <chr>, source <chr>, achilles_n_replicates <dbl>,
+#> #   cell_line_nnmd <dbl>, culture_type <chr>, culture_medium <chr>,
+#> #   cas9_activity <chr>, tissue <chr>
 ```
 
-### gene\_essentiality.tib
+![](README_files/figure-gfm/hist_achilleseffect-1.png)<!-- -->
 
-A two column tibble of what the DepMap project deems essential or not
-essential in all cell lines.
+The DepMap released information on the guides they used including,
+mapping information, efficacy, and those that they removed (for various
+reasons, though likely for off-target effects). These data were collated
+into one data frame.
+
+``` r
+readRDS(file.path("data", "Achilles_guides.tib"))
+#> # A tibble: 71,143 x 7
+#>    sgrna    genome_alignment  gene   n_alignments   offset efficacy dropped
+#>    <chr>    <chr>             <chr>         <dbl>    <dbl>    <dbl> <lgl>  
+#>  1 AAAAAAA… chr10_112724378_+ SHOC2…            1 -3.84e-2    1.000 FALSE  
+#>  2 AAAAAAC… chr12_95397391_+  NDUFA…            1 -8.34e-1    0.190 FALSE  
+#>  3 AAAAAAG… chr4_76891509_-   SDAD1…            1  4.44e-1    1.000 FALSE  
+#>  4 AAAAAAG… chr2_33813513_-   FAM98…            1 -1.86e-1    1.000 FALSE  
+#>  5 AAAAAAG… chr19_20002409_+  ZNF25…            1 -2.03e-2    0.707 FALSE  
+#>  6 AAAAAAG… chr6_26199835_+   HIST1…            1  9.74e-2    1.000 FALSE  
+#>  7 AAAAACA… chr14_64688272_-  SYNE2…            1 -1.13e-2    0.691 FALSE  
+#>  8 AAAAACT… chr1_229440884_+  SPHAR…            1  4.79e-6    1.000 FALSE  
+#>  9 AAAAAGA… chr11_64757251_-  BATF2…            1  3.92e-1    0.999 FALSE  
+#> 10 AAAAAGA… chr1_59154718_-   MYSM1…            1  2.05e-1    0.998 FALSE  
+#> # … with 71,133 more rows
+```
+
+The DepMap project released a file containing which batch each sample
+(cell line) was processed in. Note, the scores in
+`Achilles_gene_effect.tib` have already been corrected for batch
+effects.
+
+``` r
+readRDS(file.path("data", "Achilles_replicate_map.tib"))
+#> # A tibble: 1,253 x 3
+#>    replicate_id                       dep_map_id p_dna_batch
+#>    <chr>                              <chr>            <dbl>
+#>  1 MIA Paca-2-311Cas9 Rep A p6_batch0 ACH-000601           0
+#>  2 MIA Paca-2-311Cas9 Rep B p6_batch0 ACH-000601           0
+#>  3 MIA Paca-2-311Cas9 Rep C p6_batch0 ACH-000601           0
+#>  4 MIA Paca-2-311Cas9 Rep D p6_batch0 ACH-000601           0
+#>  5 NCI-H1792-311Cas9 Rep A p6_batch0  ACH-000496           0
+#>  6 NCI-H1792-311Cas9 Rep B p6_batch0  ACH-000496           0
+#>  7 NCI-H1792-311Cas9 Rep C p6_batch0  ACH-000496           0
+#>  8 NCI-H1792-311Cas9 Rep D p6_batch0  ACH-000496           0
+#>  9 ASPC-1-311Cas9 Rep A p6_batch0     ACH-000222           0
+#> 10 ASPC-1-311Cas9 Rep B p6_batch0     ACH-000222           0
+#> # … with 1,243 more rows
+```
+
+Finally, the DepMap created three lists of genes according tho their
+essentialiaty. Those were merged into one data frame, here. The
+`common_essential` column indicates which genes were previously known to
+be essential in all cells, while the `achilles_essential` column
+indicates which genes were found to be pan-essential during the Achilles
+screen. The `nonessential` column indicates which genes are universally
+non-essential
 
 ``` r
 readRDS(file.path("data", "gene_essentiality.tib"))
-#> # A tibble: 993 x 2
-#>    gene   is_essential
-#>    <chr>  <lgl>       
-#>  1 RPS11  TRUE        
-#>  2 RPS17  TRUE        
-#>  3 RPL4   TRUE        
-#>  4 EIF3D  TRUE        
-#>  5 RPL27  TRUE        
-#>  6 RPL10A TRUE        
-#>  7 RPS13  TRUE        
-#>  8 U2AF1  TRUE        
-#>  9 POLR2D TRUE        
-#> 10 RPS15A TRUE        
-#> # … with 983 more rows
+#> # A tibble: 2,917 x 4
+#>    gene          common_essential achilles_essential nonessential
+#>    <chr>         <lgl>            <lgl>              <lgl>       
+#>  1 RPS11 (6205)  TRUE             TRUE               FALSE       
+#>  2 RPS17 (6218)  TRUE             TRUE               FALSE       
+#>  3 RPL4 (6124)   TRUE             TRUE               FALSE       
+#>  4 EIF3D (8664)  TRUE             TRUE               FALSE       
+#>  5 RPL27 (6155)  TRUE             TRUE               FALSE       
+#>  6 RPL10A (4736) TRUE             TRUE               FALSE       
+#>  7 RPS13 (6207)  TRUE             TRUE               FALSE       
+#>  8 U2AF1 (7307)  TRUE             TRUE               FALSE       
+#>  9 POLR2D (5433) TRUE             TRUE               FALSE       
+#> 10 RPS15A (6210) TRUE             TRUE               FALSE       
+#> # … with 2,907 more rows
 ```
 
-### copy\_number (directory)
+The following Venn diagram shows the overlap of these three groups.
 
-The full tibble was too large to push to GitHub (and probably to warrant
-loading every time), so I separated it by primary disease and stored
-each as a tibble in “data/copy\_number”. Again, I supply a function
-below to retrieve each one or all (default) tissues.
-
-``` r
-load_copy_number <- function(tissues = "all") {
-    load_tissue_data(dir = "copy_number", tissues = tissues)
-}
-```
-
-Here is an example.
-
-``` r
-load_copy_number(c("CERVIX", "BONE"))
-#> # A tibble: 1,980,415 x 12
-#>    DepMap_ID gene  copy_number CCLE_Name Aliases COSMIC_ID Sanger_ID
-#>    <chr>     <chr>       <dbl> <chr>     <chr>       <dbl>     <dbl>
-#>  1 ACH-0000… A1BG      0.0616  SKNMC_BO… SK-N-MC        NA        NA
-#>  2 ACH-0004… A1BG      0.00266 SW1353_B… SW 1353        NA        NA
-#>  3 ACH-0000… A1BG     -0.198   A673_BONE A-673      684052       660
-#>  4 ACH-0002… A1BG     -0.0141  CADOES1_… CADO-E…    753539      1523
-#>  5 ACH-0010… A1BG     -0.0104  CBAGPN_B… <NA>           NA        NA
-#>  6 ACH-0010… A1BG      0.286   CHLA10_B… <NA>           NA        NA
-#>  7 ACH-0010… A1BG     -0.0433  CHLA218_… <NA>           NA        NA
-#>  8 ACH-0012… A1BG      0.0226  CHLA258_… <NA>           NA        NA
-#>  9 ACH-0010… A1BG     -0.0251  CHLA32_B… <NA>           NA        NA
-#> 10 ACH-0010… A1BG      0.510   CHLA57_B… <NA>           NA        NA
-#> # … with 1,980,405 more rows, and 5 more variables: Primary_Disease <chr>,
-#> #   Subtype_Disease <chr>, Gender <chr>, Source <chr>, tissue <chr>
-```
-
-### guide\_gene\_map.tib
-
-The mapping of each small guide RNA (sgRNA) to its target gene.
-
-``` r
-readRDS(file.path("data", "guide_gene_map.tib"))
-#> # A tibble: 71,140 x 5
-#>    sgrna                genome_alignment  gene      n_alignments Entrez
-#>    <chr>                <chr>             <chr>            <dbl> <chr> 
-#>  1 AAAAAAATCCAGCAATGCAG chr10_112724378_+ SHOC2                1 8036  
-#>  2 AAAAAACCCGTAGATAGCCT chr12_95397391_+  NDUFA12              1 55967 
-#>  3 AAAAAAGAAGAAAAAACCAG chr4_76891509_-   SDAD1                1 55153 
-#>  4 AAAAAAGCTCAAGAAGGAGG chr2_33813513_-   FAM98A               1 25940 
-#>  5 AAAAAAGGCTGTAAAAGCGT chr19_20002409_+  ZNF253               1 56242 
-#>  6 AAAAAAGGGCTCCAAAAAGG chr6_26199835_+   HIST1H2BF            1 8343  
-#>  7 AAAAACAACACATCAGAGCG chr14_64688272_-  SYNE2                1 23224 
-#>  8 AAAAACTCTGGGAAATGACT chr1_229440884_+  SPHAR                1 10638 
-#>  9 AAAAAGACAACCTCGCCCTG chr11_64757251_-  BATF2                1 116071
-#> 10 AAAAAGAGCTGTTTGAACAA chr1_59154718_-   MYSM1                1 114803
-#> # … with 71,130 more rows
-```
-
------
-
-## Comparing RNAi vs. CRISPR screens
-
-Below is a plot of all the data points where both RNAi and CRISPR screen
-scores are available for a cell line and gene.
-
-![all\_points](images/diff_RNAi_CRISPR_individual.png)
-
-Below is a plot of all the data points where both RNAi and CRISPR screen
-scores are available for a disease and gene, with each score being
-average across the cell lines.
-
-![disease\_avg](images/diff_RNAi_CRISPR_avg.png)
+![](README_files/figure-gfm/venn_essentials-1.png)<!-- -->
 
 -----
 
