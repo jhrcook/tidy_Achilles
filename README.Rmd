@@ -10,7 +10,8 @@ knitr::opts_chunk$set(
     collapse = TRUE,
     echo = TRUE,
     cache = TRUE,
-    cache.lazy = FALSE
+    cache.lazy = FALSE,
+    dpi = 400
 )
 ```
 

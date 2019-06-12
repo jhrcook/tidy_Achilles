@@ -7,6 +7,8 @@ data/CCLE_mutations.csv
 data/cell_line_copy_number.tib
 data/cell_line_gene_expression.tib
 
+VennDiagram*
+
 README_cache
 README.html
 
